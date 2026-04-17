@@ -231,7 +231,7 @@ wheels = [
 
 [[package]]
 name = "aliyun-log-python-sdk"
-version = "0.9.44"
+version = "0.9.45"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "dateparser" },
@@ -243,7 +243,7 @@ dependencies = [
     { name = "requests" },
     { name = "six" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/2d/5c/f4076b129fe9168f5424f9d89afc587baf36a844f4ae7b619a951a97c76c/aliyun_log_python_sdk-0.9.44.tar.gz", hash = "sha256:891d0ba91cdce8e5e6b430a50512e092751621680bc9f0b7c7325aaa7c1944f1", size = 154147, upload-time = "2026-03-30T08:40:59.04Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/5c/af/2594d12b3ef7e5585d9a53ac36ec262ec43d95c30f3b06df1b14b97831e7/aliyun_log_python_sdk-0.9.45.tar.gz", hash = "sha256:31501e0a707329dc6fae0496ff5ee67fdf68794638b29ef218e69a927e261136", size = 154234, upload-time = "2026-04-14T08:46:47.883Z" }
 
 [[package]]
 name = "aliyun-python-sdk-core"
@@ -1538,7 +1538,7 @@ vdb-xinference = [
 
 [package.metadata]
 requires-dist = [
-    { name = "aliyun-log-python-sdk", specifier = ">=0.9.44,<1.0.0" },
+    { name = "aliyun-log-python-sdk", specifier = ">=0.9.45,<1.0.0" },
     { name = "arize-phoenix-otel", specifier = "~=0.15.0" },
     { name = "azure-identity", specifier = ">=1.25.3,<2.0.0" },
     { name = "bleach", specifier = ">=6.3.0" },
@@ -1557,11 +1557,11 @@ requires-dist = [
     { name = "gmpy2", specifier = ">=2.3.0" },
     { name = "google-api-python-client", specifier = ">=2.194.0" },
     { name = "google-cloud-aiplatform", specifier = ">=1.147.0,<2.0.0" },
-    { name = "graphon", specifier = "~=0.1.2" },
+    { name = "graphon", specifier = "~=0.2.1" },
     { name = "gunicorn", specifier = ">=25.3.0" },
     { name = "httpx", extras = ["socks"], specifier = ">=0.28.1,<1.0.0" },
     { name = "httpx-sse", specifier = "~=0.4.0" },
-    { name = "json-repair", specifier = "~=0.59.2" },
+    { name = "json-repair", specifier = "~=0.59.4" },
     { name = "langfuse", specifier = ">=4.2.0,<5.0.0" },
     { name = "langsmith", specifier = ">=0.7.31,<1.0.0" },
     { name = "mlflow-skinny", specifier = ">=3.11.1,<4.0.0" },
@@ -1578,7 +1578,7 @@ requires-dist = [
     { name = "python-socketio", specifier = ">=5.13.0" },
     { name = "readabilipy", specifier = ">=0.3.0,<1.0.0" },
     { name = "redis", extras = ["hiredis"], specifier = ">=7.4.0" },
-    { name = "resend", specifier = ">=2.27.0,<3.0.0" },
+    { name = "resend", specifier = ">=2.29.0,<3.0.0" },
     { name = "sendgrid", specifier = ">=6.12.5" },
     { name = "sseclient-py", specifier = ">=1.8.0" },
     { name = "weave", specifier = ">=0.52.36,<1.0.0" },
@@ -2783,7 +2783,7 @@ httpx = [
 
 [[package]]
 name = "graphon"
-version = "0.1.2"
+version = "0.2.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "charset-normalizer" },
@@ -2804,9 +2804,9 @@ dependencies = [
     { name = "unstructured", extra = ["docx", "epub", "md", "ppt", "pptx"] },
     { name = "webvtt-py" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/33/fc/0a5342a1c29bc367c2254c170ef130a84a60d8cd1c9cc84a7a85e96c1042/graphon-0.1.2.tar.gz", hash = "sha256:a2210629f93258ad2e7cbe85b5d4c6826814f6c679aa2a23ca100511363b9240", size = 214744, upload-time = "2026-03-27T20:09:53.802Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a6/98/597f6ebab957a36655f5d6196b0c603e63478c787b888ecb720e15fa4411/graphon-0.2.1.tar.gz", hash = "sha256:80b84c95b1ca7b680c9295504b442518406ff648f501cefb812df6bad2c4f8d7", size = 236353, upload-time = "2026-04-14T15:14:16.9Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d5/46/65b5e366ec2d7017b6d6448e2635b3772d86840a6f7297277471b1bfbfbd/graphon-0.1.2-py3-none-any.whl", hash = "sha256:79f0c7796de7b8642d070730bb8bdaf1c68ccdfcecac38e0b2282e0543f0a6db", size = 314398, upload-time = "2026-03-27T20:09:52.524Z" },
+    { url = "https://files.pythonhosted.org/packages/79/0d/d3f1b196c8c6dbd3a534a39229ff8486a236afd67aac60d8daae0f99e5a1/graphon-0.2.1-py3-none-any.whl", hash = "sha256:004134798f371e647340901d334fbddab81813d7e9b5305d6480cb6bc6be681d", size = 340895, upload-time = "2026-04-14T15:14:15.511Z" },
 ]
 
 [[package]]
@@ -3340,11 +3340,11 @@ wheels = [
 
 [[package]]
 name = "json-repair"
-version = "0.59.2"
+version = "0.59.4"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/ed/cb/a49f1661737a78098ce33668350590c981a4163055bc9a01e0cc688d896a/json_repair-0.59.2.tar.gz", hash = "sha256:1d8abb2fa94c4035a66ef9892ea3785dace8dcf09c583e6de781cfd31b278b3d", size = 48341, upload-time = "2026-04-11T15:55:41.145Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/32/41/4ae9c6e711647a41b4e0c04bce815113ce9c0286eff6dc6fb86979b2fb9f/json_repair-0.59.4.tar.gz", hash = "sha256:559ca1828f6f566530663cd96d64bee29f8282b9d2ff0e661e05fa87b4171ab3", size = 47624, upload-time = "2026-04-15T06:48:40.776Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e1/03/7afcecb4242d93b684708b47fb014abdc1922a01b38c0e30f1117ae74a83/json_repair-0.59.2-py3-none-any.whl", hash = "sha256:6ca6238519c24f671bcb05d1f38a0d6a452bb4ca5af82137595c5c2f1a0fb785", size = 46918, upload-time = "2026-04-11T15:55:39.817Z" },
+    { url = "https://files.pythonhosted.org/packages/74/c4/ec3068436d2275731539b7a43fbc947f502bc3fe149856a5d00368c7b087/json_repair-0.59.4-py3-none-any.whl", hash = "sha256:46052e646bc0b0c39db672ebbf732f774f3c1a5bde81a54f0b0e19d3af4f45cd", size = 46697, upload-time = "2026-04-15T06:48:39.61Z" },
 ]
 
 [[package]]
@@ -5623,15 +5623,15 @@ wheels = [
 
 [[package]]
 name = "resend"
-version = "2.27.0"
+version = "2.29.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "requests" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/96/da/3d342cacbde7143e36782243caa3715d9e49cadb43e804419493c784869b/resend-2.27.0.tar.gz", hash = "sha256:abc183da7566c1fdba8221ec5acd9f954c2ff516a0c2615bee2a41bc9db3e277", size = 37177, upload-time = "2026-04-01T21:19:31.823Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b0/e7/ebb504fee5dac9710192ca04550e8c8250bb2a7612a2397829e3934eb157/resend-2.29.0.tar.gz", hash = "sha256:cd905809a64128b29d5beda1d4a5bda8d60d438a66942ed736ca40238e9d2331", size = 43125, upload-time = "2026-04-16T13:14:56.183Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b4/95/783b09d24c8f40b900a2728b67fd3c1401d4a6afcdf1db1c8475c249559d/resend-2.27.0-py2.py3-none-any.whl", hash = "sha256:5bc8ddebb0418127fc3e47eb29ab72af727861481c4b051b96cb693df8f8dc40", size = 59831, upload-time = "2026-04-01T21:19:30.471Z" },
+    { url = "https://files.pythonhosted.org/packages/b0/91/9299b0eac66a33d48dea8c825063077f28d188d89b2d3178c3837c40b3df/resend-2.29.0-py2.py3-none-any.whl", hash = "sha256:aad7c6097c26cf2dbe46534a1fc8d92637fbdea28243b00a3363c8d3136331de", size = 68320, upload-time = "2026-04-16T13:14:54.928Z" },
 ]
 
 [[package]]

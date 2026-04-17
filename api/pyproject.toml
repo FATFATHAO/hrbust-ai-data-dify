@@ -23,7 +23,7 @@ dependencies = [
     "sseclient-py>=1.8.0",
 
     # Stable: production-proven, cap below the next major
-    "aliyun-log-python-sdk>=0.9.44,<1.0.0",
+    "aliyun-log-python-sdk>=0.9.45,<1.0.0",
     "azure-identity>=1.25.3,<2.0.0",
     "flask-compress>=1.24,<2.0.0",
     "flask-login>=0.6.3,<1.0.0",
@@ -43,15 +43,15 @@ dependencies = [
     "opentelemetry-instrumentation-sqlalchemy>=0.62b0,<1.0.0",
     "opentelemetry-propagator-b3>=1.41.0,<2.0.0",
     "readabilipy>=0.3.0,<1.0.0",
-    "resend>=2.27.0,<3.0.0",
+    "resend>=2.29.0,<3.0.0",
     "weave>=0.52.36,<1.0.0",
 
     # Emerging: newer and fast-moving, use compatible pins
     "arize-phoenix-otel~=0.15.0",
     "fastopenapi[flask]~=0.7.0",
-    "graphon~=0.1.2",
+    "graphon~=0.2.1",
     "httpx-sse~=0.4.0",
-    "json-repair~=0.59.2",
+    "json-repair~=0.59.4",
     "opik~=1.11.2",
 ]
 # Before adding new dependency, consider place it in
