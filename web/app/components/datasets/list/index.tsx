@@ -23,6 +23,8 @@ import ServiceApi from '../extra-info/service-api'
 import DatasetFooter from './dataset-footer'
 import Datasets from './datasets'
 
+type KnowledgeType = 'all' | 'personal' | 'department'
+
 const List = () => {
   const { t } = useTranslation()
   const { systemFeatures } = useGlobalPublicStore()
@@ -30,6 +32,7 @@ const List = () => {
   const showTagManagementModal = useTagStore(s => s.showTagManagementModal)
   const { showExternalApiPanel, setShowExternalApiPanel } = useExternalApiPanel()
   const [includeAll, { toggle: toggleIncludeAll }] = useBoolean(false)
+  const [knowledgeType, setKnowledgeType] = useState<KnowledgeType>('all')
   useDocumentTitle(t('knowledge', { ns: 'dataset' }))
 
   const [keywords, setKeywords] = useState('')
@@ -92,7 +95,46 @@ const List = () => {
           </Button>
         </div>
       </div>
-      <Datasets tags={tagIDs} keywords={searchKeywords} includeAll={includeAll} />
+      <div className="sticky top-[49px] z-10 flex items-center gap-x-1 bg-background-body px-12 pb-2">
+        <div className="border-components-tab-border bg-components-tab-bg flex items-center gap-1 rounded-lg border p-0.5">
+          <button
+            onClick={() => setKnowledgeType('all')}
+            className={`flex items-center justify-center rounded-md px-3 py-1 text-sm font-medium transition-colors ${
+              knowledgeType === 'all'
+                ? 'bg-components-tab-active-bg text-components-tab-active-text'
+                : 'text-text-secondary hover:text-text-primary'
+            }`}
+          >
+            {t('knowledgeTypeAll', { ns: 'dataset' })}
+          </button>
+          <button
+            onClick={() => setKnowledgeType('personal')}
+            className={`flex items-center justify-center rounded-md px-3 py-1 text-sm font-medium transition-colors ${
+              knowledgeType === 'personal'
+                ? 'bg-components-tab-active-bg text-components-tab-active-text'
+                : 'text-text-secondary hover:text-text-primary'
+            }`}
+          >
+            {t('knowledgeTypePersonal', { ns: 'dataset' })}
+          </button>
+          <button
+            onClick={() => setKnowledgeType('department')}
+            className={`flex items-center justify-center rounded-md px-3 py-1 text-sm font-medium transition-colors ${
+              knowledgeType === 'department'
+                ? 'bg-components-tab-active-bg text-components-tab-active-text'
+                : 'text-text-secondary hover:text-text-primary'
+            }`}
+          >
+            {t('knowledgeTypeDepartment', { ns: 'dataset' })}
+          </button>
+        </div>
+      </div>
+      <Datasets
+        tags={tagIDs}
+        keywords={searchKeywords}
+        includeAll={includeAll}
+        knowledge_type={knowledgeType === 'all' ? undefined : knowledgeType}
+      />
       {!systemFeatures.branding.enabled && <DatasetFooter />}
       {showTagManagementModal && (
         <TagManagementModal type="knowledge" show={showTagManagementModal} />

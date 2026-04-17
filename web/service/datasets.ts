@@ -64,8 +64,8 @@ export const fetchDatasets = ({ url, params }: FetchDatasetsParams): Promise<Dat
   return get<DataSetListResponse>(`${url}?${urlParams}`)
 }
 
-export const createEmptyDataset = ({ name }: { name: string }): Promise<DataSet> => {
-  return post<DataSet>('/datasets', { body: { name } })
+export const createEmptyDataset = ({ name, is_personal, department_id }: { name: string, is_personal?: boolean, department_id?: string }): Promise<DataSet> => {
+  return post<DataSet>('/datasets', { body: { name, is_personal, department_id } })
 }
 
 export const checkIsUsedInApp = (id: string): Promise<{ is_using: boolean }> => {

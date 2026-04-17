@@ -82,9 +82,9 @@ export const useInfiniteDatasets = (
 }
 
 export const useDatasetList = (params: DatasetListRequest) => {
-  const { initialPage, tag_ids, limit, include_all, keyword } = params
+  const { initialPage, tag_ids, limit, include_all, keyword, knowledge_type, department_id } = params
   return useInfiniteQuery({
-    queryKey: [...DatasetListKey, initialPage, tag_ids, limit, include_all, keyword],
+    queryKey: [...DatasetListKey, initialPage, tag_ids, limit, include_all, keyword, knowledge_type, department_id],
     queryFn: ({ pageParam = 1 }) => {
       const urlParams = qs.stringify({
         tag_ids,
@@ -92,6 +92,8 @@ export const useDatasetList = (params: DatasetListRequest) => {
         include_all,
         keyword,
         page: pageParam,
+        ...(knowledge_type ? { knowledge_type } : {}),
+        ...(department_id ? { department_id } : {}),
       }, { indices: false })
       return get<DataSetListResponse>(`/datasets?${urlParams}`)
     },

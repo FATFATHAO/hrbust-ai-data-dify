@@ -57,7 +57,12 @@ server {
       proxy_pass http://api:5001;
       include proxy.conf;
     }
-    
+
+    location /enterprise/api {
+      proxy_pass http://enterprise_api:5002;
+      include proxy.conf;
+    }
+
     # placeholder for acme challenge location
     ${ACME_CHALLENGE_LOCATION}
 

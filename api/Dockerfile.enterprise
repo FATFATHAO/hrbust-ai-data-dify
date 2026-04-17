@@ -1,0 +1,42 @@
+# Enterprise API Dockerfile
+# 用于构建 Dify 企业版 FastAPI 服务的 Docker 镜像
+
+FROM python:3.12-slim-bookworm
+
+WORKDIR /app
+
+# Install uv
+ENV UV_VERSION=0.8.9
+RUN pip install --no-cache-dir uv==${UV_VERSION}
+
+# Install system dependencies for psycopg2
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        ca-certificates \
+        curl \
+        libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy pyproject.toml and install dependencies
+COPY enterprise_api/pyproject.toml /app/
+RUN uv venv /app/.venv
+RUN . /app/.venv/bin/activate && uv pip install --no-cache-dir -r /app/pyproject.toml
+
+# Copy enterprise_api source code
+COPY enterprise_api /app/enterprise_api
+
+# Set environment variables
+ENV VIRTUAL_ENV=/app/.venv
+ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
+ENV PYTHONPATH=/app
+
+# Set timezone
+ENV TZ=UTC
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+ENV PYTHONIOENCODING=utf-8
+
+EXPOSE 5002
+
+# Run the application
+CMD ["uvicorn", "enterprise_api.main:app", "--host", "0.0.0.0", "--port", "5002"]

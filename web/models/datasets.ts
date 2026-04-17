@@ -95,6 +95,11 @@ export type DataSet = {
   enable_api: boolean // Indicates if the service API is enabled
   is_multimodal: boolean // Indicates if the dataset supports multimodal
   summary_index_setting?: SummaryIndexSetting
+  // Department related fields
+  is_personal?: boolean // Whether this is a personal knowledge base
+  department_id?: string // The department this knowledge base belongs to (for personal KB)
+  shared_department_ids?: string[] // List of departments this KB is shared with
+  department_binding_enabled?: boolean // Whether department sharing is enabled
 }
 
 export type ExternalAPIItem = {
@@ -204,6 +209,9 @@ export type DatasetListRequest = {
   limit: number
   include_all?: boolean
   keyword?: string
+  // Department related filters
+  knowledge_type?: 'personal' | 'department' // Filter by knowledge base type
+  department_id?: string // Filter by department
 }
 
 export type DataSetListResponse = {
