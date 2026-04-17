@@ -11,16 +11,16 @@ RUN pip install --no-cache-dir uv==${UV_VERSION}
 
 # Install system dependencies for psycopg2
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        ca-certificates \
-        curl \
-        libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
+  && apt-get install -y --no-install-recommends \
+  ca-certificates \
+  curl \
+  libpq-dev \
+  && rm -rf /var/lib/apt/lists/*
 
 # Copy pyproject.toml and install dependencies
 COPY enterprise_api/pyproject.toml /app/
 RUN uv venv /app/.venv
-RUN . /app/.venv/bin/activate && uv pip install --no-cache-dir -r /app/pyproject.toml
+RUN . /app/.venv/bin/activate && uv pip install --no-cache-dir --index-url https://pypi.tuna.tsinghua.edu.cn/simple -r /app/pyproject.toml
 
 # Copy enterprise_api source code
 COPY enterprise_api /app/enterprise_api
