@@ -4,15 +4,15 @@ Dataset Router
 """
 import uuid
 
-from database import get_db
-from deps import CurrentUser, get_current_user, require_editor
-from fastapi import APIRouter, Depends, HTTPException, status
-from models.department import DatasetDepartmentBinding, Department
-from schemas.department import (
+from enterprise_api.database import get_db
+from enterprise_api.deps import CurrentUser, get_current_user, require_editor
+from enterprise_api.models.department import DatasetDepartmentBinding, Department
+from enterprise_api.schemas.department import (
     DatasetDepartmentBindingCreate,
     DatasetDepartmentBindingResponse,
     DatasetDepartmentBindingsResponse,
 )
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 router = APIRouter()

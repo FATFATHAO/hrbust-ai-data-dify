@@ -4,7 +4,7 @@ Enterprise API Dependencies
 """
 
 import jwt
-from config import get_jwt_secret
+from enterprise_api.config import get_jwt_secret
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel

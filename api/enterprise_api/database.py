@@ -3,7 +3,7 @@ Enterprise API Database Configuration
 由于 FastAPI 运行在独立进程中，需要创建自己的数据库连接
 但使用与 Dify 相同的数据库
 """
-from config import get_database_url
+from enterprise_api.config import get_database_url
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, declarative_base, sessionmaker
 from sqlalchemy.pool import QueuePool
