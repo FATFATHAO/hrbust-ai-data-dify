@@ -791,7 +791,7 @@ services:
   # FastAPI application for enterprise features (department management, dataset sharing)
   enterprise_api:
     build:
-      context: ./api
+      context: ../api
       dockerfile: Dockerfile.enterprise
     container_name: dify-enterprise-api
     restart: unless-stopped
@@ -808,7 +808,7 @@ services:
       redis:
         condition: service_started
     volumes:
-      - ./api/enterprise_api:/app/enterprise_api
+      - ../api/enterprise_api:/app/enterprise_api
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5002/health"]
       interval: 30s
