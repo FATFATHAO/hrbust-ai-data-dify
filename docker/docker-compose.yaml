@@ -905,7 +905,10 @@ services:
 
   # Frontend web application.
   web:
-    image: langgenius/dify-web:1.13.3
+    # image: langgenius/dify-web:1.13.3
+    build:
+      context: ../web
+      dockerfile: Dockerfile
     restart: always
     environment:
       CONSOLE_API_URL: ${CONSOLE_API_URL:-}
