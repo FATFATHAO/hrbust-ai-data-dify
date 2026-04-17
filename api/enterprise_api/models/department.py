@@ -5,9 +5,10 @@ Department Models
 from datetime import datetime
 from typing import Optional
 
-from enterprise_api.database import Base
 from sqlalchemy import DateTime, ForeignKey, Index, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from enterprise_api.database import Base
 
 
 class Department(Base):

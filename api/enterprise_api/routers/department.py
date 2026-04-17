@@ -4,6 +4,9 @@ Department Router
 """
 import uuid
 
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy.orm import Session
+
 from enterprise_api.database import get_db
 from enterprise_api.deps import CurrentUser, get_current_user, require_editor
 from enterprise_api.models.department import AccountDepartmentJoin, Department
@@ -16,8 +19,6 @@ from enterprise_api.schemas.department import (
     DepartmentResponse,
     DepartmentUpdate,
 )
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy.orm import Session
 
 router = APIRouter()
 
