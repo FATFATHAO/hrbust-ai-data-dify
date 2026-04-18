@@ -776,7 +776,8 @@ services:
         condition: service_started
     volumes:
       # Mount the storage directory to the container, for storing user files.
-      - ./volumes/app/storage:/app/api/storage
+      # - ./volumes/app/storage:/app/api/storage
+      - ../api/migrations/versions:/app/api/migrations/versions
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
       interval: 30s
@@ -853,7 +854,8 @@ services:
         condition: service_started
     volumes:
       # Mount the storage directory to the container, for storing user files.
-      - ./volumes/app/storage:/app/api/storage
+      # - ./volumes/app/storage:/app/api/storage
+      - ../api/migrations/versions:/app/api/migrations/versions
     healthcheck:
       test: ["CMD-SHELL", "celery -A celery_healthcheck.celery inspect ping"]
       interval: ${COMPOSE_WORKER_HEALTHCHECK_INTERVAL:-30s}
@@ -892,6 +894,8 @@ services:
         required: false
       redis:
         condition: service_started
+    volumes:
+      - ../api/migrations/versions:/app/api/migrations/versions
     healthcheck:
       test: ["CMD-SHELL", "celery -A celery_healthcheck.celery inspect ping"]
       interval: ${COMPOSE_WORKER_HEALTHCHECK_INTERVAL:-30s}
