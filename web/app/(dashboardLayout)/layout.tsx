@@ -21,17 +21,8 @@ const GotoAnything = dynamic(() => import('@/app/components/goto-anything'), {
   ssr: false,
 })
 
-// [HRBUST MODIFIED] 隐藏原生顶导，改用自定义侧边栏
-// {/* 原生代码内容...
-// import Header from '@/app/components/header'
-// import HeaderWrapper from '@/app/components/header/header-wrapper'
-// ...
-// <HeaderWrapper>
-//   <Header />
-// </HeaderWrapper>
-// ... 原生代码内容 */}
-
-const Layout = ({ children }: { children: ReactNode }) => {
+// [HRBUST MODIFIED] 数据总览页面使用独立布局（带侧边栏）
+const DashboardLayout = ({ children }: { children: ReactNode }) => {
   return (
     <>
       <GA gaType={GaType.admin} />
@@ -62,4 +53,5 @@ const Layout = ({ children }: { children: ReactNode }) => {
     </>
   )
 }
-export default Layout
+
+export default DashboardLayout
