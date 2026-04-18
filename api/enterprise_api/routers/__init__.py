@@ -5,6 +5,7 @@ from fastapi import APIRouter
 
 from .dataset import router as dataset_router
 from .department import router as department_router
+from .super_admin import router as super_admin_router
 
 # 创建 API 路由
 api_router = APIRouter()
@@ -20,4 +21,10 @@ api_router.include_router(
 api_router.include_router(
     dataset_router,
     tags=["Dataset Department Binding"]
+)
+
+# 注册超级管理员路由
+api_router.include_router(
+    super_admin_router,
+    tags=["Super Admin"]
 )

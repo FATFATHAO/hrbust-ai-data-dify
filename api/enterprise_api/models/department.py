@@ -79,6 +79,7 @@ class AccountDepartmentJoin(Base):
         nullable=False
     )
     tenant_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    role: Mapped[str] = mapped_column(String(20), nullable=False, default="member")
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     # 关系
@@ -90,6 +91,7 @@ class AccountDepartmentJoin(Base):
     __table_args__ = (
         Index("idx_account_department_unique", "account_id", "department_id", unique=True),
         Index("idx_join_department", "department_id"),
+        Index("idx_join_role", "role"),
     )
 
     def to_dict(self) -> dict:
@@ -99,6 +101,7 @@ class AccountDepartmentJoin(Base):
             "account_id": self.account_id,
             "department_id": self.department_id,
             "tenant_id": self.tenant_id,
+            "role": self.role,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
 
