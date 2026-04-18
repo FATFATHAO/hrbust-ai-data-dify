@@ -6,7 +6,9 @@ import { useHover } from 'ahooks'
 import { useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useShallow } from 'zustand/react/shallow'
-import DifyLogo from '@/app/components/base/logo/dify-logo'
+import DataDevelopmentLogo from '@/app/components/base/logo/data-development-logo'
+import AccountDropdown from '@/app/components/header/account-dropdown'
+import Link from '@/next/link'
 import { useSidebarStore } from './sidebar-store'
 
 type NavItem = {
@@ -106,12 +108,11 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
         {expanded
           ? (
               <div className="flex items-center gap-2">
-                <DifyLogo size="small" />
-                <span className="text-base font-semibold text-text-primary">Dify</span>
+                <DataDevelopmentLogo size="small" />
               </div>
             )
           : (
-              <DifyLogo size="small" />
+              <DataDevelopmentLogo size="small" />
             )}
       </div>
 
@@ -128,16 +129,10 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
 
       {/* Bottom Section */}
       <div className="border-t border-divider-burn">
-        {/* Settings */}
-        <NavItem
-          item={{
-            label: '设置',
-            icon: 'i-heroicons-cog-6-tooth',
-            activeIcon: 'i-heroicons-cog-8-tooth',
-            href: '/account/settings',
-          }}
-          expanded={expanded}
-        />
+        {/* User Account Dropdown */}
+        <div className={cn('flex items-center', expanded ? 'px-3' : 'justify-center px-2')}>
+          <AccountDropdown />
+        </div>
 
         {/* Toggle Button - Show on hover when collapsed */}
         {!expanded && isHovering && (
@@ -176,7 +171,7 @@ const NavItem: React.FC<NavItemProps> = ({ item, expanded }) => {
   // The active state will be determined by the current pathname
 
   return (
-    <a
+    <Link
       href={item.href}
       className={cn(
         'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
@@ -187,7 +182,7 @@ const NavItem: React.FC<NavItemProps> = ({ item, expanded }) => {
     >
       <span className={cn('h-5 w-5 shrink-0', item.icon)} />
       {expanded && <span className="truncate">{t(item.label)}</span>}
-    </a>
+    </Link>
   )
 }
 
