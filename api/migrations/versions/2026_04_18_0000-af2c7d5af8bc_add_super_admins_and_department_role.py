@@ -1,7 +1,7 @@
 """Add super_admins table and role field to account_department_joins
 
-Revision ID: xxxxx
-Revises: 8574b23a38fd
+Revision ID: af2c7d5af8bc
+Revises: aaaaa0000000
 Create Date: 2026-04-18 00:00:00.000000
 
 """
@@ -9,8 +9,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "xxxxx"
-down_revision = "aaaaa0000000"
+revision = "af2c7d5af8bc"
+down_revision = "c486bc3b9864"
 branch_labels = None
 depends_on = None
 
