@@ -1,7 +1,7 @@
 """add departments tables
 
-Revision ID: xxxxxxxxxxxx
-Revises: (latest revision)
+Revision ID: aaaaa0000000
+Revises: 6b5f9f8b1a2c
 Create Date: 2026-04-17 12:00:00.000000
 
 """
@@ -9,9 +9,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-# Please replace with the actual latest revision ID after running `alembic heads`
-revision = 'xxxxxxxxxxxx'
-down_revision = None  # Please set this to the current head revision
+revision = 'aaaaa0000000'
+down_revision = '6b5f9f8b1a2c'
 branch_labels = None
 depends_on = None
 
