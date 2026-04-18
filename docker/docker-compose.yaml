@@ -744,8 +744,6 @@ services:
   api:
     image: langgenius/dify-api:1.13.3
     restart: always
-    ports:
-      - "127.0.0.1:5001:5001"
     environment:
       # Use the shared environment variables.
       <<: *shared-api-worker-env
