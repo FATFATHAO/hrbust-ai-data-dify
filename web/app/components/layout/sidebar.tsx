@@ -108,7 +108,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
         {expanded
           ? (
               <div className="flex items-center gap-2">
-                <DataDevelopmentLogo size="small" />
+                <DataDevelopmentLogo size="medium" />
               </div>
             )
           : (

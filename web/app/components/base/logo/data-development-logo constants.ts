@@ -8,7 +8,10 @@ export const dataDevelopmentLogoPathMap: Record<DataDevelopmentLogoStyle, string
 export type DataDevelopmentLogoSize = 'large' | 'medium' | 'small'
 
 export const dataDevelopmentLogoSizeMap: Record<DataDevelopmentLogoSize, string> = {
-  large: 'w-16 h-7',
-  medium: 'w-12 h-[22px]',
-  small: 'w-9 h-4',
+  // 侧边栏折叠时使用
+  small: 'w-10 h-5',
+  // 侧边栏展开时使用
+  medium: 'w-14 h-7',
+  // 登录页使用
+  large: 'w-20 h-10',
 }

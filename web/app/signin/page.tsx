@@ -30,19 +30,26 @@ const LoginForm = () => {
   const searchParams = useSearchParams()
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const emailFromLink = decodeURIComponent(searchParams.get('email') || '')
-  const [email, setEmail] = useState(emailFromLink)
+  const identifierFromLink = decodeURIComponent(searchParams.get('email') || '')
+  const [identifier, setIdentifier] = useState(identifierFromLink)
   const [password, setPassword] = useState('')
 
+  // Username format: 3-30 chars, alphanumeric and underscore
+  const usernameRegex = /^\w{3,30}$/
+
   const handleLogin = async () => {
-    if (!email) {
-      toast.error(t('error.emailEmpty', { ns: 'login' }))
+    if (!identifier.trim()) {
+      toast.error('请输入用户名或邮箱')
       return
     }
-    if (!emailRegex.test(email)) {
-      toast.error(t('error.emailInValid', { ns: 'login' }))
+
+    // Check if it's an email format or username format
+    const isEmailFormat = emailRegex.test(identifier)
+    if (!isEmailFormat && !usernameRegex.test(identifier)) {
+      toast.error('用户名或邮箱格式不正确')
       return
     }
+
     if (!password?.trim()) {
       toast.error(t('error.passwordEmpty', { ns: 'login' }))
       return
@@ -53,7 +60,7 @@ const LoginForm = () => {
       const res = await login({
         url: '/login',
         body: {
-          email,
+          email: identifier,
           password: encryptPassword(password),
           language: locale,
           remember_me: true,
@@ -83,15 +90,15 @@ const LoginForm = () => {
   return (
     <div className="space-y-4">
       <div>
-        <Label htmlFor="login-email">{t('email', { ns: 'login' })}</Label>
+        <Label htmlFor="login-identifier">用户名 / 邮箱</Label>
         <Input
-          id="login-email"
-          type="email"
-          value={email}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
-          placeholder={t('emailPlaceholder', { ns: 'login' }) || ''}
+          id="login-identifier"
+          type="text"
+          value={identifier}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setIdentifier(e.target.value)}
+          placeholder="请输入用户名或邮箱"
           className="mt-1"
-          autoComplete="email"
+          autoComplete="username"
         />
       </div>
 
@@ -362,7 +369,7 @@ const SignIn = () => {
       <div className="w-full max-w-[420px]">
         {/* Logo */}
         <div className="mb-8 flex flex-col items-center">
-          <DataDevelopmentLogo size="medium" />
+          <DataDevelopmentLogo size="large" />
           <p className="mt-1 text-sm text-text-secondary">
             {t('welcome', { ns: 'login' })}
           </p>
