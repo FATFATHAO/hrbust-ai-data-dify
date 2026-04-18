@@ -15,7 +15,6 @@ import { ProviderContextProvider } from '@/context/provider-context-provider'
 import dynamic from '@/next/dynamic'
 import PartnerStack from '../components/billing/partner-stack'
 import Splash from '../components/splash'
-import RoleRouteGuard from './role-route-guard'
 
 const GotoAnything = dynamic(() => import('@/app/components/goto-anything'), {
   ssr: false,
@@ -35,9 +34,7 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => {
                 {/* Custom Sidebar */}
                 <Sidebar />
                 <MainContent>
-                  <RoleRouteGuard>
-                    {children}
-                  </RoleRouteGuard>
+                  {children}
                 </MainContent>
                 <InSiteMessageNotification />
                 <PartnerStack />
