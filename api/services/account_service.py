@@ -203,10 +203,15 @@ class AccountService:
         return token
 
     @staticmethod
-    def authenticate(email: str, password: str, invite_token: str | None = None) -> Account:
-        """authenticate account with email and password"""
+    def authenticate(email_or_name: str, password: str, invite_token: str | None = None) -> Account:
+        """authenticate account with email or name and password"""
 
-        account = db.session.scalar(select(Account).where(Account.email == email).limit(1))
+        # If contains @, query by email; otherwise query by name (username)
+        if '@' in email_or_name:
+            account = db.session.scalar(select(Account).where(Account.email == email_or_name).limit(1))
+        else:
+            account = db.session.scalar(select(Account).where(Account.name == email_or_name).limit(1))
+
         if not account:
             raise AccountPasswordError("Invalid email or password.")
 

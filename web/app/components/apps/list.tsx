@@ -24,12 +24,10 @@ import AppCard from './app-card'
 import { AppCardSkeleton } from './app-card-skeleton'
 import Empty from './empty'
 import Footer from './footer'
-import HeroSection from './hero-section'
 import useAppsQueryState from './hooks/use-apps-query-state'
 import { useDSLDragDrop } from './hooks/use-dsl-drag-drop'
 import NewAppCard from './new-app-card'
-import QuickActionCard from './quick-action-card'
-import StatsBar from './stats-bar'
+// import QuickActionCard from './quick-action-card'
 
 const TagManagementModal = dynamic(() => import('@/app/components/base/tag-management'), {
   ssr: false,
@@ -249,24 +247,24 @@ const List: FC<Props> = ({
         )}
 
         {/* Hero Section */}
-        <HeroSection />
+        {/* <HeroSection /> */}
 
         {/* Stats Bar */}
-        <div className="mt-8">
-          <StatsBar />
-        </div>
+        {/* <div className="mt-8"> */}
+        {/*   <StatsBar /> */}
+        {/* </div> */}
 
         {/* Quick Actions */}
-        <div className="mt-8">
-          <QuickActionCard />
-        </div>
+        {/* <div className="mt-8"> */}
+        {/*   <QuickActionCard /> */}
+        {/* </div> */}
 
         {/* Section title */}
-        <div className="px-12 pt-8">
-          <h2 className="text-xl font-semibold text-white">
-            {t('home.recentApps', { defaultValue: '最近编辑' })}
-          </h2>
-        </div>
+        {/* <div className="px-12 pt-8"> */}
+        {/*   <h2 className="text-xl font-semibold text-white"> */}
+        {/*     {t('home.recentApps', { defaultValue: '最近编辑' })} */}
+        {/*   </h2> */}
+        {/* </div> */}
 
         <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-y-2 bg-background-body px-12 pt-4 pb-5">
           <TabSliderNew

@@ -350,12 +350,15 @@ def _get_account_with_case_fallback(email: str):
 def _authenticate_account_with_case_fallback(
     original_email: str, normalized_email: str, password: str, invite_token: str | None
 ):
+    # If original input contains @, it's an email - apply case fallback
+    # If no @, it's a username - no case fallback needed (name lookup is exact)
+    is_email = '@' in original_email
     try:
         return AccountService.authenticate(original_email, password, invite_token)
     except services.errors.account.AccountPasswordError:
-        if original_email == normalized_email:
-            raise
-        return AccountService.authenticate(normalized_email, password, invite_token)
+        if is_email and original_email != normalized_email:
+            return AccountService.authenticate(normalized_email, password, invite_token)
+        raise
 
 
 def _log_console_login_failure(*, email: str, reason: LoginFailureReason) -> None:

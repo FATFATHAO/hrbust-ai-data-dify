@@ -19,7 +19,7 @@ const MainContent: React.FC<MainContentProps> = ({ children, className }) => {
   return (
     <main
       className={cn(
-        'min-h-screen flex-1 transition-all duration-300',
+        'flex min-h-screen flex-col transition-all duration-300',
         expanded ? 'ml-[240px]' : 'ml-14',
         className,
       )}
