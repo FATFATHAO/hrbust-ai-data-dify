@@ -82,6 +82,7 @@ from .auth import (
     login,
     oauth,
     oauth_server,
+    username_register,  # [HRBUST MODIFIED] Username-based registration
 )
 
 # Import billing controllers
@@ -210,6 +211,7 @@ __all__ = [
     "tool_providers",
     "trial",
     "trigger_providers",
+    "username_register",
     "version",
     "website",
     "workflow",

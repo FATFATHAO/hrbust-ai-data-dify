@@ -24,6 +24,8 @@ RUN apt-get update \
 # Install Python dependencies (workspace members under providers/vdb/)
 COPY pyproject.toml uv.lock ./
 COPY providers ./providers
+ENV UV_EXTRA_INDEX_URL="https://pypi.tuna.tsinghua.edu.cn/simple"
+ENV UV_INDEX_URL="https://pypi.org/simple"
 RUN uv sync --locked --no-dev
 
 # production stage

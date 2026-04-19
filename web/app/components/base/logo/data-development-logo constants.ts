@@ -2,7 +2,8 @@ export type DataDevelopmentLogoStyle = 'default' | 'monochromeWhite'
 
 export const dataDevelopmentLogoPathMap: Record<DataDevelopmentLogoStyle, string> = {
   default: '/logo/Data-Development-Logo.svg',
-  monochromeWhite: '/logo/Data-Delelopment-Text-Logo.svg',
+  // monochromeWhite: '/logo/Data-Delelopment-Text-Logo.svg',
+  monochromeWhite: '/logo/Data-Development-Logo.svg',
 }
 
 export type DataDevelopmentLogoSize = 'large' | 'medium' | 'small'
