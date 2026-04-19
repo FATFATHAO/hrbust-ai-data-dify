@@ -139,7 +139,7 @@ const LoginForm = () => {
       <Button
         variant="primary"
         onClick={handleLogin}
-        disabled={isLoading || !email || !password}
+        disabled={isLoading || !identifier || !password}
         className="w-full"
         loading={isLoading}
       >
@@ -149,22 +149,95 @@ const LoginForm = () => {
   )
 }
 
-// Register Form Component (Unified - email -> code -> password in one page)
-type RegisterStep = 'email' | 'code' | 'password'
+// [HRBUST MODIFIED] Register Form with quick (username+password) and email modes
+type RegisterMode = 'quick' | 'email'
+type EmailRegisterStep = 'email' | 'code' | 'password'
 
 const RegisterForm = () => {
   const { t } = useTranslation()
   const locale = useLocale()
   const router = useRouter()
-  const [step, setStep] = useState<RegisterStep>('email')
+
+  // Mode toggle: quick (username+password) or email (existing flow)
+  const [mode, setMode] = useState<RegisterMode>('quick')
+
+  // Quick register state (username + password)
+  const [quickUsername, setQuickUsername] = useState('')
+  const [quickPassword, setQuickPassword] = useState('')
+  const [quickConfirmPassword, setQuickConfirmPassword] = useState('')
+
+  // Email register state (existing flow)
+  const [emailStep, setEmailStep] = useState<EmailRegisterStep>('email')
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+  const [emailPassword, setEmailPassword] = useState('')
+  const [emailConfirmPassword, setEmailConfirmPassword] = useState('')
 
+  const [isLoading, setIsLoading] = useState(false)
   const { mutateAsync: sendMail, isPending: isSendingMail } = useSendMail()
 
+  // Username validation regex: 3-30 chars, alphanumeric and underscore
+  const usernameRegex = /^\w{3,30}$/
+
+  // Quick register handler
+  const handleQuickRegister = async () => {
+    if (!quickUsername.trim()) {
+      toast.error('请输入用户名')
+      return
+    }
+    if (!usernameRegex.test(quickUsername)) {
+      toast.error('用户名格式不正确（3-30个字符，仅限字母、数字和下划线）')
+      return
+    }
+    if (!quickPassword || quickPassword.length < 8) {
+      toast.error(t('error.passwordLengthInValid', { ns: 'login' }))
+      return
+    }
+    if (quickPassword !== quickConfirmPassword) {
+      toast.error('两次输入的密码不一致')
+      return
+    }
+
+    try {
+      setIsLoading(true)
+      const res = await fetch('/console/api/username-register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: quickUsername,
+          password: encryptPassword(quickPassword),
+          password_confirm: encryptPassword(quickConfirmPassword),
+          language: locale,
+        }),
+      })
+
+      const data = await res.json()
+      if (data.result === 'success') {
+        if (data.data?.access_token) {
+          // Login succeeded - auto login
+          toast.success('账户创建成功')
+          setWebAppAccessToken(data.data.access_token)
+          router.replace('/apps')
+        }
+        else {
+          // Registration succeeded but login failed - redirect to login
+          toast.success('账户创建成功，请登录')
+          router.replace('/signin')
+        }
+      }
+      else {
+        toast.error(data.message || data.data || '注册失败')
+      }
+    }
+    catch {
+      toast.error('注册失败')
+    }
+    finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Email register handlers
   const handleSendCode = async () => {
     if (!email) {
       toast.error(t('error.emailEmpty', { ns: 'login' }))
@@ -178,7 +251,7 @@ const RegisterForm = () => {
     try {
       const res = await sendMail({ email, language: locale })
       if (res.result === 'success') {
-        setStep('code')
+        setEmailStep('code')
         toast.success('验证码已发送')
       }
     }
@@ -192,15 +265,15 @@ const RegisterForm = () => {
       toast.error('请输入有效的6位验证码')
       return
     }
-    setStep('password')
+    setEmailStep('password')
   }
 
-  const handleSetPassword = async () => {
-    if (!password || password.length < 8) {
+  const handleEmailRegister = async () => {
+    if (!emailPassword || emailPassword.length < 8) {
       toast.error(t('error.passwordLengthInValid', { ns: 'login' }))
       return
     }
-    if (password !== confirmPassword) {
+    if (emailPassword !== emailConfirmPassword) {
       toast.error('两次输入的密码不一致')
       return
     }
@@ -213,8 +286,8 @@ const RegisterForm = () => {
         body: JSON.stringify({
           email,
           verification_code: code,
-          password: encryptPassword(password),
-          password_confirm: encryptPassword(confirmPassword),
+          password: encryptPassword(emailPassword),
+          password_confirm: encryptPassword(emailConfirmPassword),
         }),
       })
 
@@ -244,7 +317,88 @@ const RegisterForm = () => {
 
   return (
     <div className="space-y-4">
-      {step === 'email' && (
+      {/* Mode Toggle */}
+      <div className="border-border-default mb-4 flex border-b">
+        <button
+          type="button"
+          onClick={() => setMode('quick')}
+          className={`flex-1 pb-2 text-sm font-medium transition-colors ${
+            mode === 'quick'
+              ? 'border-b-2 border-indigo-500 text-indigo-600'
+              : 'text-text-tertiary hover:text-text-secondary'
+          }`}
+        >
+          快速注册
+        </button>
+        <button
+          type="button"
+          onClick={() => setMode('email')}
+          className={`flex-1 pb-2 text-sm font-medium transition-colors ${
+            mode === 'email'
+              ? 'border-b-2 border-indigo-500 text-indigo-600'
+              : 'text-text-tertiary hover:text-text-secondary'
+          }`}
+        >
+          邮箱注册
+        </button>
+      </div>
+
+      {/* Quick Register: Username + Password */}
+      {mode === 'quick' && (
+        <>
+          <div>
+            <Label htmlFor="register-username">用户名</Label>
+            <Input
+              id="register-username"
+              type="text"
+              value={quickUsername}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setQuickUsername(e.target.value)}
+              placeholder="3-30个字符，支持字母、数字和下划线"
+              className="mt-1"
+              autoComplete="username"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="register-quick-password">{t('password', { ns: 'login' })}</Label>
+            <Input
+              id="register-quick-password"
+              type="password"
+              value={quickPassword}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setQuickPassword(e.target.value)}
+              placeholder={t('passwordPlaceholder', { ns: 'login' }) || ''}
+              className="mt-1"
+              autoComplete="new-password"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="register-quick-confirm">{t('confirmPassword', { ns: 'login' })}</Label>
+            <Input
+              id="register-quick-confirm"
+              type="password"
+              value={quickConfirmPassword}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setQuickConfirmPassword(e.target.value)}
+              placeholder={t('confirmPasswordPlaceholder', { ns: 'login' }) || ''}
+              className="mt-1"
+              autoComplete="new-password"
+            />
+          </div>
+
+          <Button
+            variant="primary"
+            onClick={handleQuickRegister}
+            disabled={isLoading || !quickUsername || !quickPassword || !quickConfirmPassword}
+            className="w-full"
+            loading={isLoading}
+          >
+            {t('signup.createAccount', { ns: 'login' })}
+          </Button>
+        </>
+      )}
+
+      {/* Email Register: Email -> Code -> Password */}
+      {mode === 'email' && emailStep === 'email' && (
         <>
           <div>
             <Label htmlFor="register-email">{t('email', { ns: 'login' })}</Label>
@@ -271,7 +425,7 @@ const RegisterForm = () => {
         </>
       )}
 
-      {step === 'code' && (
+      {mode === 'email' && emailStep === 'code' && (
         <>
           <div>
             <div className="flex items-center justify-between">
@@ -303,30 +457,40 @@ const RegisterForm = () => {
           >
             验证
           </Button>
+
+          <div className="text-center">
+            <button
+              type="button"
+              onClick={() => setEmailStep('email')}
+              className="system-xs-regular text-text-tertiary hover:text-text-secondary"
+            >
+              返回
+            </button>
+          </div>
         </>
       )}
 
-      {step === 'password' && (
+      {mode === 'email' && emailStep === 'password' && (
         <>
           <div>
-            <Label htmlFor="register-password">{t('password', { ns: 'login' })}</Label>
+            <Label htmlFor="register-email-password">{t('password', { ns: 'login' })}</Label>
             <Input
-              id="register-password"
+              id="register-email-password"
               type="password"
-              value={password}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+              value={emailPassword}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setEmailPassword(e.target.value)}
               placeholder={t('passwordPlaceholder', { ns: 'login' }) || ''}
               className="mt-1"
             />
           </div>
 
           <div>
-            <Label htmlFor="register-confirm-password">{t('confirmPassword', { ns: 'login' })}</Label>
+            <Label htmlFor="register-email-confirm">{t('confirmPassword', { ns: 'login' })}</Label>
             <Input
-              id="register-confirm-password"
+              id="register-email-confirm"
               type="password"
-              value={confirmPassword}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => setConfirmPassword(e.target.value)}
+              value={emailConfirmPassword}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setEmailConfirmPassword(e.target.value)}
               placeholder={t('confirmPasswordPlaceholder', { ns: 'login' }) || ''}
               className="mt-1"
             />
@@ -334,25 +498,25 @@ const RegisterForm = () => {
 
           <Button
             variant="primary"
-            onClick={handleSetPassword}
-            disabled={isLoading || !password || !confirmPassword}
+            onClick={handleEmailRegister}
+            disabled={isLoading || !emailPassword || !emailConfirmPassword}
             className="w-full"
             loading={isLoading}
           >
             {t('signup.createAccount', { ns: 'login' })}
           </Button>
+
+          <div className="text-center">
+            <button
+              type="button"
+              onClick={() => setEmailStep('email')}
+              className="system-xs-regular text-text-tertiary hover:text-text-secondary"
+            >
+              返回
+            </button>
+          </div>
         </>
       )}
-
-      <div className="text-center">
-        <button
-          type="button"
-          onClick={() => setStep('email')}
-          className="system-xs-regular text-text-tertiary hover:text-text-secondary"
-        >
-          返回
-        </button>
-      </div>
     </div>
   )
 }

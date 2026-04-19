@@ -21,7 +21,7 @@ class LoginFailureReason(StrEnum):
 
 
 class LoginPayloadBase(BaseModel):
-    email: EmailStr
+    email: str  # [HRBUST MODIFIED] Changed from EmailStr to str to support username login
     password: str
 
 

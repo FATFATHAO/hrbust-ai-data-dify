@@ -820,6 +820,13 @@ class AccountService:
 
             return session.execute(select(Account).where(Account.email == email.lower())).scalar_one_or_none()
 
+    # [HRBUST MODIFIED] Added for username registration
+    @staticmethod
+    def get_account_by_username(username: str) -> Account | None:
+        """Retrieve an account by username (name field)."""
+        with session_factory.create_session() as session:
+            return session.execute(select(Account).where(Account.name == username)).scalar_one_or_none()
+
     @classmethod
     def get_email_code_login_data(cls, token: str) -> dict[str, Any] | None:
         return TokenManager.get_token_data(token, "email_code_login")

@@ -744,6 +744,9 @@ services:
   api:
     image: langgenius/dify-api:1.13.3
     restart: always
+    build:
+      context: ../api
+      dockerfile: Dockerfile
     environment:
       # Use the shared environment variables.
       <<: *shared-api-worker-env
@@ -757,6 +760,11 @@ services:
       PLUGIN_MAX_PACKAGE_SIZE: ${PLUGIN_MAX_PACKAGE_SIZE:-52428800}
       PLUGIN_DAEMON_TIMEOUT: ${PLUGIN_DAEMON_TIMEOUT:-600.0}
       INNER_API_KEY_FOR_PLUGIN: ${PLUGIN_DIFY_INNER_API_KEY:-QaHbTe77CtuXmsfyhR7+vRjI/+XbV1AaFy691iy+kGDv2Jvy0/eAh8Y1}
+      # [HRBUST MODIFIED] Enable username-based registration
+      ALLOW_REGISTER: ${ALLOW_REGISTER:-true}
+      ALLOW_CREATE_WORKSPACE: ${ALLOW_CREATE_WORKSPACE:-true}
+      UV_INDEX_URL: https://pypi.tuna.tsinghua.edu.cn/simple
+      UV_EXTRA_INDEX_URL: https://pypi.org/simple
     depends_on:
       init_permissions:
         condition: service_completed_successfully
@@ -778,6 +786,13 @@ services:
       # Mount the storage directory to the container, for storing user files.
       # - ./volumes/app/storage:/app/api/storage
       - ../api/migrations/versions:/app/api/migrations/versions
+      - ../api/services/entities/auth_entities.py:/app/api/services/entities/auth_entities.py
+      - ../api/services/account_service.py:/app/api/services/account_service.py
+      - ../api/controllers/console/auth/login.py:/app/api/controllers/console/auth/login.py
+      - ../api/controllers/console:/app/api/controllers/console
+      # [HRBUST MODIFIED] Mount username registration endpoint
+      - ../api/controllers/console/auth/username_register.py:/app/api/controllers/console/auth/username_register.py
+      - ../api/controllers/console/__init__.py:/app/api/controllers/console/__init__.py
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
       interval: 30s
@@ -835,6 +850,8 @@ services:
       SENTRY_PROFILES_SAMPLE_RATE: ${API_SENTRY_PROFILES_SAMPLE_RATE:-1.0}
       PLUGIN_MAX_PACKAGE_SIZE: ${PLUGIN_MAX_PACKAGE_SIZE:-52428800}
       INNER_API_KEY_FOR_PLUGIN: ${PLUGIN_DIFY_INNER_API_KEY:-QaHbTe77CtuXmsfyhR7+vRjI/+XbV1AaFy691iy+kGDv2Jvy0/eAh8Y1}
+      UV_INDEX_URL: https://pypi.tuna.tsinghua.edu.cn/simple
+      UV_EXTRA_INDEX_URL: https://pypi.org/simple
     depends_on:
       init_permissions:
         condition: service_completed_successfully
@@ -877,6 +894,8 @@ services:
       <<: *shared-api-worker-env
       # Startup mode, 'worker_beat' starts the Celery beat for scheduling periodic tasks.
       MODE: beat
+      UV_INDEX_URL: https://pypi.tuna.tsinghua.edu.cn/simple
+      UV_EXTRA_INDEX_URL: https://pypi.org/simple
     depends_on:
       init_permissions:
         condition: service_completed_successfully
@@ -1106,6 +1125,8 @@ services:
       VOLCENGINE_TOS_REGION: ${PLUGIN_VOLCENGINE_TOS_REGION:-}
       SENTRY_ENABLED: ${PLUGIN_SENTRY_ENABLED:-false}
       SENTRY_DSN: ${PLUGIN_SENTRY_DSN:-}
+      UV_INDEX_URL: https://pypi.tuna.tsinghua.edu.cn/simple
+      UV_EXTRA_INDEX_URL: https://pypi.org/simple
     ports:
       - "${EXPOSE_PLUGIN_DEBUGGING_PORT:-5003}:${PLUGIN_DEBUGGING_PORT:-5003}"
     volumes:
