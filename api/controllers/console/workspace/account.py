@@ -1123,3 +1123,45 @@ class AccountDepartmentsApi(Resource):
         db.session.commit()
 
         return {"result": "success", "message": "部门已更新"}
+
+
+class BatchImportRequest(BaseModel):
+    pass  # 文件上传通过 request.files 处理
+
+
+register_schema_models(console_ns, BatchImportRequest)
+
+
+@console_ns.route("/accounts/batch-import")
+class BatchImportAccountApi(Resource):
+    @setup_required
+    @login_required
+    @account_initialization_required
+    def post(self):
+        """批量导入用户"""
+        current_user, _ = current_account_with_tenant()
+        current_role = current_user.account_role or "user"
+
+        # 只有 admin 可以批量导入
+        if current_role != "admin":
+            return {"error": "权限不足，只有管理员可以批量导入用户"}, 403
+
+        # 获取上传的文件
+        if 'file' not in request.files:
+            return {"error": "请上传文件"}, 400
+
+        file = request.files['file']
+        if not file.filename:
+            return {"error": "请上传文件"}, 400
+
+        if not (file.filename.endswith('.csv') or file.filename.endswith('.xlsx') or file.filename.endswith('.xls')):
+            return {"error": "只支持 CSV 或 Excel 文件"}, 400
+
+        # 调用服务层处理
+        result = AccountService.batch_import_accounts(
+            file=file,
+            operator_id=current_user.id,
+            tenant_id=current_user.current_tenant_id or ""
+        )
+
+        return result

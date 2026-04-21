@@ -3,7 +3,7 @@
  * 用户管理 API 服务
  */
 import type { AccountRole } from '@/types/permission'
-import type { UserDepartmentsResponse, UserListResponse } from '@/types/user'
+import type { BatchImportResponse, UserDepartmentsResponse, UserListResponse } from '@/types/user'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import Cookies from 'js-cookie'
 import { CSRF_COOKIE_NAME, CSRF_HEADER_NAME } from '@/config'
@@ -203,5 +203,41 @@ const updateUserDepartments = async (accountId: string, departmentIds: string[])
 export const useUpdateUserDepartments = () => {
   return useMutation<void, Error, { accountId: string, departmentIds: string[] }>({
     mutationFn: ({ accountId, departmentIds }) => updateUserDepartments(accountId, departmentIds),
+  })
+}
+
+/**
+ * 批量导入用户
+ */
+const batchImportUsers = async (file: File): Promise<BatchImportResponse> => {
+  const url = '/console/api/accounts/batch-import'
+  const csrfToken = Cookies.get(CSRF_COOKIE_NAME()) || ''
+
+  const formData = new FormData()
+  formData.append('file', file)
+
+  const response = await fetch(url, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      [CSRF_HEADER_NAME]: csrfToken,
+    },
+    body: formData,
+  })
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}))
+    throw new Error(error.error || `批量导入失败: ${response.status}`)
+  }
+
+  return response.json()
+}
+
+/**
+ * Hook to batch import users
+ */
+export const useBatchImportUsers = () => {
+  return useMutation<BatchImportResponse, Error, File>({
+    mutationFn: batchImportUsers,
   })
 }

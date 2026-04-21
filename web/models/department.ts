@@ -32,6 +32,7 @@ export type UpdateDepartmentPayload = {
 
 export type DepartmentMember = {
   id: string
+  account_id: string
   name: string
   email: string
   avatar?: string

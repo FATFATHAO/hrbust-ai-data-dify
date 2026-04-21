@@ -4,7 +4,9 @@ import type { Department } from '@/models/department'
 import type { UserInfo } from '@/types/user'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
+import { Button } from '@/app/components/base/ui/button'
 import { Dialog, DialogContent } from '@/app/components/base/ui/dialog'
+import BatchUserImportModal from '@/app/components/batch-user-import-modal'
 import { useAppContext } from '@/context/app-context'
 import { fetchDepartments } from '@/service/department'
 import { useResetUserPassword, useUpdateUserDepartments, useUpdateUserInfo, useUserList } from '@/service/use-account'
@@ -52,6 +54,9 @@ const UsersPage = () => {
     setMounted(true)
   }, [])
   const { data: userListResp, isLoading, refetch } = useUserList()
+
+  // Batch import modal state
+  const [showBatchImportModal, setShowBatchImportModal] = useState(false)
   const { data: allDeptsResp } = useQuery({
     queryKey: ['all-departments-for-users'],
     queryFn: fetchDepartments,
@@ -211,13 +216,22 @@ const UsersPage = () => {
   return (
     <div className="flex h-full flex-col p-8">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-text-primary">
-          用户管理
-        </h1>
-        <p className="text-text-secondary">
-          管理系统中的用户账户
-        </p>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold text-text-primary">
+            用户管理
+          </h1>
+          <p className="text-text-secondary">
+            管理系统中的用户账户
+          </p>
+        </div>
+        {mounted && accountRole === 'admin' && (
+          <div className="flex gap-2">
+            <Button variant="secondary" onClick={() => setShowBatchImportModal(true)}>
+              批量导入
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Edit Panel - Name */}
@@ -488,6 +502,16 @@ const UsersPage = () => {
                 </div>
               </div>
             )}
+
+      {/* Batch Import Modal */}
+      <BatchUserImportModal
+        isShow={showBatchImportModal}
+        onCancel={() => setShowBatchImportModal(false)}
+        onSuccess={() => {
+          setShowBatchImportModal(false)
+          refetch()
+        }}
+      />
     </div>
   )
 }

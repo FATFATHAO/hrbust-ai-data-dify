@@ -84,3 +84,44 @@ export const getVisibleRoleOptions = (currentRole: AccountRole): { value: Accoun
   }
   return []
 }
+
+/**
+ * 批量导入用户记录
+ */
+export type BatchImportUserRecord = {
+  name: string
+  email: string
+  password?: string
+  role?: AccountRole
+  department?: string
+}
+
+/**
+ * 批量导入错误信息
+ */
+export type BatchImportError = {
+  row: number
+  email: string
+  message: string
+}
+
+/**
+ * 批量导入创建的用户信息
+ */
+export type BatchImportCreatedUser = {
+  email: string
+  name: string
+  is_password_generated: boolean
+  generated_password?: string
+}
+
+/**
+ * 批量导入响应
+ */
+export type BatchImportResponse = {
+  success_count: number
+  fail_count: number
+  total: number
+  errors: BatchImportError[]
+  created_users: BatchImportCreatedUser[]
+}
