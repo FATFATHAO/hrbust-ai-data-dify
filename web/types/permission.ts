@@ -27,8 +27,23 @@ export type NavItem = {
  * 定义每个角色可以访问的菜单路径
  */
 export const ROLE_NAV_CONFIG: Record<AccountRole, string[]> = {
-  admin: ['/dashboard', '/apps', '/datasets', '/tools', '/plugins', '/departments'],
-  manager: ['/dashboard', '/apps', '/datasets', '/tools'],
+  admin: [
+    '/dashboard',
+    '/apps',
+    '/datasets',
+    '/tools',
+    '/plugins',
+    '/users',
+    '/departments',
+  ],
+  manager: [
+    '/dashboard',
+    '/apps',
+    '/datasets',
+    '/tools',
+    '/users',
+    '/departments',
+  ],
   dev: ['/dashboard', '/apps', '/datasets', '/tools', '/plugins'],
   user: ['/dashboard', '/apps', '/datasets'],
 }

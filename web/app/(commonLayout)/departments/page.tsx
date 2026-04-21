@@ -2,12 +2,10 @@
 
 import type { Department } from '@/models/department'
 import { useCallback, useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import { useRouter } from '@/next/navigation'
 import { createDepartment, deleteDepartment, fetchDepartments, updateDepartment } from '@/service/department'
 
 const DepartmentsPage = () => {
-  const { t } = useTranslation()
   const router = useRouter()
   const [departments, setDepartments] = useState<Department[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -104,17 +102,17 @@ const DepartmentsPage = () => {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-text-primary">
-            {t('departments.title')}
+            部门管理
           </h1>
           <p className="text-text-secondary">
-            {t('departments.description')}
+            管理系统中的部门结构
           </p>
         </div>
         <button
           onClick={handleCreate}
           className="inline-flex cursor-pointer items-center justify-center rounded-lg border border-components-button-primary-border bg-components-button-primary-bg px-3.5 py-1.5 text-[13px] font-medium whitespace-nowrap text-components-button-primary-text shadow hover:border-components-button-primary-border-hover hover:bg-components-button-primary-bg-hover disabled:cursor-not-allowed disabled:border-components-button-primary-border-disabled disabled:bg-components-button-primary-bg-disabled disabled:text-components-button-primary-text-disabled"
         >
-          {t('departments.create')}
+          创建部门
         </button>
       </div>
 
@@ -123,26 +121,26 @@ const DepartmentsPage = () => {
           <div className="mb-4 space-y-3">
             <div>
               <label className="mb-1 block text-sm font-medium text-text-secondary">
-                {t('departments.name')}
+                部门名称
               </label>
               <input
                 type="text"
                 value={newName}
                 onChange={e => setNewName(e.target.value)}
                 className="border-components-input-border bg-components-input-bg focus:border-components-input-border-focus h-8 w-full rounded-lg border px-3 text-sm text-text-primary outline-none focus:ring-1 focus:ring-state-accent-solid"
-                placeholder={t('departments.namePlaceholder')}
+                placeholder="请输入部门名称"
               />
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium text-text-secondary">
-                {t('departments.description')}
+                部门描述
               </label>
               <textarea
                 value={newDescription}
                 onChange={e => setNewDescription(e.target.value)}
                 className="border-components-input-border bg-components-input-bg focus:border-components-input-border-focus w-full rounded-lg border px-3 py-2 text-sm text-text-primary outline-none focus:ring-1 focus:ring-state-accent-solid"
                 rows={2}
-                placeholder={t('departments.descriptionPlaceholder')}
+                placeholder="请输入部门描述（可选）"
               />
             </div>
           </div>
@@ -151,14 +149,14 @@ const DepartmentsPage = () => {
               onClick={() => setShowForm(false)}
               className="inline-flex cursor-pointer items-center justify-center rounded-lg border-[0.5px] border-components-button-secondary-border bg-components-button-secondary-bg px-3.5 py-1.5 text-[13px] font-medium text-components-button-secondary-text shadow-xs backdrop-blur-[5px] hover:border-components-button-secondary-border-hover hover:bg-components-button-secondary-bg-hover"
             >
-              {t('common.cancel')}
+              取消
             </button>
             <button
               onClick={handleFormSubmit}
               disabled={isSubmitting || !newName.trim()}
               className="inline-flex cursor-pointer items-center justify-center rounded-lg border border-components-button-primary-border bg-components-button-primary-bg px-3.5 py-1.5 text-[13px] font-medium text-components-button-primary-text shadow hover:border-components-button-primary-border-hover hover:bg-components-button-primary-bg-hover disabled:cursor-not-allowed disabled:border-components-button-primary-border-disabled disabled:bg-components-button-primary-bg-disabled disabled:text-components-button-primary-text-disabled"
             >
-              {isSubmitting ? t('common.saving') : t('common.save')}
+              {isSubmitting ? '保存中...' : '保存'}
             </button>
           </div>
         </div>
@@ -166,12 +164,12 @@ const DepartmentsPage = () => {
 
       {isLoading
         ? (
-            <div className="flex-1 text-center text-text-secondary">{t('common.loading')}</div>
+            <div className="flex-1 text-center text-text-secondary">加载中...</div>
           )
         : departments.length === 0
           ? (
               <div className="flex-1 rounded-lg border border-divider-regular p-8 text-center text-text-secondary">
-                {t('departments.empty')}
+                暂无部门
               </div>
             )
           : (
@@ -200,7 +198,7 @@ const DepartmentsPage = () => {
                         <span>
                           {department.member_count}
                           {' '}
-                          {t('departments.members')}
+                          名成员
                         </span>
                       )}
                     </div>
@@ -210,13 +208,13 @@ const DepartmentsPage = () => {
                           onClick={e => handleEditClick(e, department)}
                           className="hover:bg-state-hover-bg rounded px-2 py-1 text-xs"
                         >
-                          {t('common.edit')}
+                          编辑
                         </button>
                         <button
                           onClick={e => handleDeleteClick(e, department)}
                           className="text-text-error hover:bg-state-hover-bg rounded px-2 py-1 text-xs"
                         >
-                          {t('common.delete')}
+                          删除
                         </button>
                       </div>
                     </div>
@@ -229,20 +227,22 @@ const DepartmentsPage = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-components-card rounded-lg p-6 shadow-lg">
             <p className="mb-4 text-text-primary">
-              {t('departments.deleteConfirmContent', { name: deletingDept.name })}
+              确定要删除部门 "
+              {deletingDept.name}
+              " 吗？
             </p>
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setDeletingDept(null)}
                 className="rounded-lg border border-components-button-secondary-border bg-components-button-secondary-bg px-3.5 py-1.5 text-sm font-medium text-components-button-secondary-text hover:bg-components-button-secondary-bg-hover"
               >
-                {t('common.cancel')}
+                取消
               </button>
               <button
                 onClick={handleDelete}
                 className="rounded-lg border border-components-button-primary-border bg-components-button-primary-bg px-3.5 py-1.5 text-sm font-medium text-components-button-primary-text hover:bg-components-button-primary-bg-hover"
               >
-                {t('common.delete')}
+                删除
               </button>
             </div>
           </div>

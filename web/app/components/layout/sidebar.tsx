@@ -51,6 +51,18 @@ const NAV_ITEMS: NavItem[] = [
     activeIcon: 'i-heroicons-puzzle-piece',
     href: '/plugins',
   },
+  {
+    label: '用户管理',
+    icon: 'i-heroicons-users',
+    activeIcon: 'i-heroicons-users-solid',
+    href: '/users',
+  },
+  {
+    label: '部门管理',
+    icon: 'i-heroicons-building-office',
+    activeIcon: 'i-heroicons-building-office-solid',
+    href: '/departments',
+  },
 ]
 
 type SidebarProps = {
