@@ -1672,6 +1672,165 @@ class RegisterService:
         normalized_email = email.lower()
         return cls.get_invitation_if_token_valid(workspace_id, normalized_email, token)
 
+    @staticmethod
+    def generate_random_password(length: int = 12) -> str:
+        """生成随机密码（包含字母和数字）"""
+        chars = string.ascii_letters + string.digits
+        while True:
+            password = ''.join(secrets.choice(chars) for _ in range(length))
+            if any(c.isalpha() for c in password) and any(c.isdigit() for c in password):
+                return password
+
+    @staticmethod
+    def batch_import_accounts(file, operator_id: str, tenant_id: str) -> dict:
+        """批量导入用户"""
+        import csv
+        import io
+
+        from enterprise_api.models.department import AccountDepartmentJoin, Department
+        from models.account import Account, AccountStatus
+
+        result = {
+            "success_count": 0,
+            "fail_count": 0,
+            "total": 0,
+            "errors": [],
+            "created_users": []
+        }
+
+        # 解析文件
+        if file.filename.endswith('.csv'):
+            stream = io.TextIOWrapper(file.stream, encoding='utf-8')
+            reader = csv.DictReader(stream)
+            rows = list(reader)
+        else:
+            # Excel 文件处理
+            try:
+                import openpyxl
+            except ImportError:
+                return {"error": "不支持 Excel 文件，请先安装 openpyxl 库"}, 500
+
+            try:
+                wb = openpyxl.load_workbook(file.stream, read_only=True)
+                sheet = wb.active
+                headers = [cell.value for cell in sheet[1]]
+                rows = []
+                for row in sheet.iter_rows(min_row=2, values_only=True):
+                    if any(cell is not None for cell in row):
+                        row_dict = dict(zip(headers, row))
+                        rows.append(row_dict)
+                wb.close()
+            except Exception as e:
+                return {"error": f"Excel 文件解析失败: {str(e)}"}, 500
+
+        if not rows:
+            return {"error": "文件为空"}, 400
+
+        # 构建部门名称到 ID 的映射
+        departments = db.session.scalars(
+            select(Department).filter(Department.tenant_id == tenant_id)
+        ).all()
+        dept_name_to_id = {d.name: d.id for d in departments}
+
+        for row_num, row in enumerate(rows, start=2):  # 从第2行开始（跳过表头）
+            result["total"] += 1
+
+            try:
+                # 获取并验证必填字段
+                name = str(row.get('name', '') or '').strip()
+                email = str(row.get('email', '') or '').strip().lower()
+
+                if not name:
+                    raise ValueError("姓名为必填项")
+                if not email:
+                    raise ValueError("邮箱为必填项")
+
+                # 验证邮箱格式
+                if '@' not in email:
+                    raise ValueError("邮箱格式无效")
+
+                # 检查邮箱是否已存在
+                existing = db.session.scalar(
+                    select(Account).where(Account.email == email).limit(1)
+                )
+                if existing:
+                    raise ValueError("邮箱已被注册")
+
+                # 处理密码
+                password = str(row.get('password', '') or '').strip()
+                is_password_generated = False
+                generated_password = None
+
+                if not password:
+                    # 生成随机密码
+                    password = AccountService.generate_random_password()
+                    is_password_generated = True
+                    generated_password = password
+                else:
+                    # 验证密码格式
+                    try:
+                        valid_password(password)
+                    except Exception as e:
+                        raise ValueError(f"密码格式无效: {str(e)}")
+
+                # 处理角色
+                role = str(row.get('role', '') or '').strip().lower() or 'user'
+                valid_roles = ['admin', 'manager', 'dev', 'user']
+                if role not in valid_roles:
+                    role = 'user'
+
+                # 创建账户
+                account = AccountService.create_account(
+                    email=email,
+                    name=name,
+                    interface_language='zh-Hans',
+                    password=password if not is_password_generated else None
+                )
+
+                account.account_role = role
+                account.status = AccountStatus.ACTIVE
+                db.session.commit()
+
+                # 处理部门关联
+                department_name = str(row.get('department', '') or '').strip()
+                if department_name and department_name in dept_name_to_id:
+                    dept_id = dept_name_to_id[department_name]
+                    join = AccountDepartmentJoin(
+                        id=str(uuid.uuid4()),
+                        account_id=account.id,
+                        department_id=dept_id,
+                        tenant_id=tenant_id
+                    )
+                    db.session.add(join)
+                    db.session.commit()
+
+                result["success_count"] += 1
+                result["created_users"].append({
+                    "email": email,
+                    "name": name,
+                    "is_password_generated": is_password_generated,
+                    "generated_password": generated_password
+                })
+
+            except ValueError as e:
+                db.session.rollback()
+                result["fail_count"] += 1
+                result["errors"].append({
+                    "row": row_num,
+                    "email": str(row.get('email', '')),
+                    "message": str(e)
+                })
+            except Exception as e:
+                db.session.rollback()
+                result["fail_count"] += 1
+                result["errors"].append({
+                    "row": row_num,
+                    "email": str(row.get('email', '')),
+                    "message": f"导入失败: {str(e)}"
+                })
+
+        return result
+
 
 def _generate_refresh_token(length: int = 64):
     token = secrets.token_hex(length)

@@ -2,12 +2,10 @@
 
 import type { Department, DepartmentMember } from '@/models/department'
 import { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import { useParams, useRouter } from '@/next/navigation'
 import { addDepartmentMember, getDepartment, getDepartmentMembers, removeDepartmentMember } from '@/service/department'
 
 const DepartmentDetailPage = () => {
-  const { t } = useTranslation()
   const router = useRouter()
   const params = useParams()
   const departmentId = params.departmentId as string
@@ -57,10 +55,10 @@ const DepartmentDetailPage = () => {
     }
   }
 
-  const handleRemoveMember = async (accountId: string) => {
+  const handleRemoveMember = async (member: DepartmentMember) => {
     try {
-      await removeDepartmentMember(departmentId, accountId)
-      setMembers(prev => prev.filter(m => m.id !== accountId))
+      await removeDepartmentMember(departmentId, member.account_id)
+      setMembers(prev => prev.filter(m => m.account_id !== member.account_id))
     }
     catch (error) {
       console.error('Failed to remove member:', error)
@@ -68,11 +66,11 @@ const DepartmentDetailPage = () => {
   }
 
   if (isLoading) {
-    return <div className="flex h-full items-center justify-center">{t('common.loading')}</div>
+    return <div className="flex h-full items-center justify-center">加载中...</div>
   }
 
   if (!department) {
-    return <div className="flex h-full items-center justify-center">{t('departments.notFound')}</div>
+    return <div className="flex h-full items-center justify-center">部门不存在</div>
   }
 
   return (
@@ -86,10 +84,16 @@ const DepartmentDetailPage = () => {
         </div>
         <div className="flex gap-2">
           <button
+            onClick={() => router.push('/departments')}
+            className="inline-flex cursor-pointer items-center justify-center rounded-lg border-[0.5px] border-components-button-secondary-border bg-components-button-secondary-bg px-3.5 py-1.5 text-[13px] font-medium text-components-button-secondary-text shadow-xs backdrop-blur-[5px] hover:border-components-button-secondary-border-hover hover:bg-components-button-secondary-bg-hover"
+          >
+            返回
+          </button>
+          <button
             onClick={() => router.push(`/departments/${departmentId}/settings`)}
             className="inline-flex cursor-pointer items-center justify-center rounded-lg border-[0.5px] border-components-button-secondary-border bg-components-button-secondary-bg px-3.5 py-1.5 text-[13px] font-medium text-components-button-secondary-text shadow-xs backdrop-blur-[5px] hover:border-components-button-secondary-border-hover hover:bg-components-button-secondary-bg-hover"
           >
-            {t('common.settings')}
+            设置
           </button>
         </div>
       </div>
@@ -99,7 +103,7 @@ const DepartmentDetailPage = () => {
           type="text"
           value={newMemberId}
           onChange={e => setNewMemberId(e.target.value)}
-          placeholder={t('departments.addMemberPlaceholder')}
+          placeholder="输入用户ID添加成员"
           className="border-components-input-border bg-components-input-bg focus:border-components-input-border-focus h-8 w-64 rounded-lg border px-3 text-sm text-text-primary outline-none focus:ring-1 focus:ring-state-accent-solid"
         />
         <button
@@ -107,13 +111,13 @@ const DepartmentDetailPage = () => {
           disabled={isAdding || !newMemberId.trim()}
           className="inline-flex cursor-pointer items-center justify-center rounded-lg border border-components-button-primary-border bg-components-button-primary-bg px-3.5 py-1.5 text-[13px] font-medium text-components-button-primary-text shadow hover:border-components-button-primary-border-hover hover:bg-components-button-primary-bg-hover disabled:cursor-not-allowed disabled:border-components-button-primary-border-disabled disabled:bg-components-button-primary-bg-disabled disabled:text-components-button-primary-text-disabled"
         >
-          {t('departments.addMember')}
+          添加成员
         </button>
       </div>
 
       <div className="flex-1">
         <h2 className="mb-4 text-lg font-medium text-text-primary">
-          {t('departments.members')}
+          部门成员
           {' '}
           (
           {members.length}
@@ -122,7 +126,7 @@ const DepartmentDetailPage = () => {
         {members.length === 0
           ? (
               <div className="rounded-lg border border-divider-regular p-6 text-center text-text-secondary">
-                {t('departments.noMembers')}
+                暂无成员
               </div>
             )
           : (
@@ -134,15 +138,15 @@ const DepartmentDetailPage = () => {
                         {member.name ? member.name.charAt(0).toUpperCase() : '?'}
                       </div>
                       <div>
-                        <div className="font-medium text-text-primary">{member.name}</div>
-                        <div className="text-sm text-text-secondary">{member.email}</div>
+                        <div className="font-medium text-text-primary">{member.name || '-'}</div>
+                        <div className="text-sm text-text-secondary">{member.email || '-'}</div>
                       </div>
                     </div>
                     <button
-                      onClick={() => handleRemoveMember(member.id)}
+                      onClick={() => handleRemoveMember(member)}
                       className="text-text-error hover:bg-state-hover-bg rounded px-2 py-1 text-sm"
                     >
-                      {t('common.remove')}
+                      移除
                     </button>
                   </div>
                 ))}

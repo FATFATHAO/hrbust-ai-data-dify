@@ -2,12 +2,10 @@
 
 import type { Department } from '@/models/department'
 import { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import { useParams, useRouter } from '@/next/navigation'
 import { getDepartment, updateDepartment } from '@/service/department'
 
 const DepartmentSettingsPage = () => {
-  const { t } = useTranslation()
   const router = useRouter()
   const params = useParams()
   const departmentId = params.departmentId as string
@@ -54,28 +52,28 @@ const DepartmentSettingsPage = () => {
   }
 
   if (isLoading) {
-    return <div className="flex h-full items-center justify-center">{t('common.loading')}</div>
+    return <div className="flex h-full items-center justify-center">加载中...</div>
   }
 
   if (!department) {
-    return <div className="flex h-full items-center justify-center">{t('departments.notFound')}</div>
+    return <div className="flex h-full items-center justify-center">部门不存在</div>
   }
 
   return (
     <div className="flex h-full flex-col p-8">
       <div className="mb-6">
         <h1 className="text-2xl font-semibold text-text-primary">
-          {t('departments.settings')}
+          部门设置
         </h1>
         <p className="text-text-secondary">
-          {t('departments.settingsDescription')}
+          修改部门信息
         </p>
       </div>
 
       <div className="w-full max-w-lg space-y-4">
         <div>
           <label className="mb-1 block text-sm font-medium text-text-secondary">
-            {t('departments.name')}
+            部门名称
             {' '}
             <span className="text-text-error">*</span>
           </label>
@@ -89,7 +87,7 @@ const DepartmentSettingsPage = () => {
 
         <div>
           <label className="mb-1 block text-sm font-medium text-text-secondary">
-            {t('departments.description')}
+            部门描述
           </label>
           <textarea
             value={description}
@@ -104,14 +102,14 @@ const DepartmentSettingsPage = () => {
             onClick={() => router.back()}
             className="inline-flex cursor-pointer items-center justify-center rounded-lg border-[0.5px] border-components-button-secondary-border bg-components-button-secondary-bg px-3.5 py-1.5 text-[13px] font-medium text-components-button-secondary-text shadow-xs backdrop-blur-[5px] hover:border-components-button-secondary-border-hover hover:bg-components-button-secondary-bg-hover"
           >
-            {t('common.cancel')}
+            取消
           </button>
           <button
             onClick={handleSubmit}
             disabled={isSubmitting || !name.trim()}
             className="inline-flex cursor-pointer items-center justify-center rounded-lg border border-components-button-primary-border bg-components-button-primary-bg px-3.5 py-1.5 text-[13px] font-medium text-components-button-primary-text shadow hover:border-components-button-primary-border-hover hover:bg-components-button-primary-bg-hover disabled:cursor-not-allowed disabled:border-components-button-primary-border-disabled disabled:bg-components-button-primary-bg-disabled disabled:text-components-button-primary-text-disabled"
           >
-            {isSubmitting ? t('common.saving') : t('common.save')}
+            {isSubmitting ? '保存中...' : '保存'}
           </button>
         </div>
       </div>

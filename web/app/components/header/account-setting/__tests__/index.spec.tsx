@@ -145,6 +145,8 @@ const baseAppContextValue: AppContextValue = {
   useSelector: vi.fn(),
   isLoadingCurrentWorkspace: false,
   isValidatingCurrentWorkspace: false,
+  accountRole: 'user',
+  mutateAccountRole: vi.fn(),
 }
 
 describe('AccountSetting', () => {

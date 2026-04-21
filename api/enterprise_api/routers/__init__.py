@@ -3,12 +3,20 @@ Enterprise API Routers
 """
 from fastapi import APIRouter
 
+from .account_role import router as account_role_router
 from .dataset import router as dataset_router
 from .department import router as department_router
 from .super_admin import router as super_admin_router
 
 # 创建 API 路由
 api_router = APIRouter()
+
+# 注册用户身份管理路由
+api_router.include_router(
+    account_role_router,
+    prefix="/account",
+    tags=["Account Role"]
+)
 
 # 注册部门管理路由
 api_router.include_router(

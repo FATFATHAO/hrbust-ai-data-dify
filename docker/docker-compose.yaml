@@ -959,6 +959,11 @@ services:
       ENABLE_WEBSITE_JINAREADER: ${ENABLE_WEBSITE_JINAREADER:-true}
       ENABLE_WEBSITE_FIRECRAWL: ${ENABLE_WEBSITE_FIRECRAWL:-true}
       ENABLE_WEBSITE_WATERCRAWL: ${ENABLE_WEBSITE_WATERCRAWL:-true}
+      NEXT_PUBLIC_ENTERPRISE_API_PREFIX: ${ENTERPRISE_API_URL:-http://localhost:5002/enterprise/api}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - default
 
   # The PostgreSQL database.
   db_postgres:

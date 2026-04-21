@@ -17,10 +17,10 @@ security = HTTPBearer(auto_error=False)
 class CurrentUser(BaseModel):
     """当前用户模型"""
     id: str
-    name: str
-    email: str
-    tenant_id: str
-    role: str  # owner, admin, editor, normal, dataset_operator
+    name: str = ""
+    email: str = ""
+    tenant_id: str = ""
+    role: str = "normal"  # owner, admin, editor, normal, dataset_operator
 
 
 class UserRole:
@@ -90,7 +90,7 @@ async def get_current_user(
         role=payload.get("role", "normal"),
     )
 
-    if not user.id or not user.tenant_id:
+    if not user.id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token payload"

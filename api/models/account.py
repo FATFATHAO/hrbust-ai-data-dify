@@ -115,6 +115,9 @@ class Account(UserMixin, TypeBase):
         DateTime, server_default=func.current_timestamp(), nullable=False, init=False, onupdate=func.current_timestamp()
     )
 
+    # 自定义应用角色: admin/manager/dev/user (与 tenant_account_joins.role 正交)
+    account_role: Mapped[str] = mapped_column(String(20), server_default="user", default="user")
+
     role: TenantAccountRole | None = field(default=None, init=False)
     _current_tenant: "Tenant | None" = field(default=None, init=False)
 

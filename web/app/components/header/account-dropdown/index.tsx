@@ -10,6 +10,7 @@ import ThemeSwitcher from '@/app/components/base/theme-switcher'
 import { Avatar } from '@/app/components/base/ui/avatar'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLinkItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/app/components/base/ui/dropdown-menu'
 import { ACCOUNT_SETTING_TAB } from '@/app/components/header/account-setting/constants'
+import { usePermission } from '@/app/components/permission/use-permission'
 import { IS_CLOUD_EDITION } from '@/config'
 import { useAppContext } from '@/context/app-context'
 import { useGlobalPublicStore } from '@/context/global-public-context'
@@ -117,6 +118,7 @@ export default function AppSelector() {
   const { userProfile, langGeniusVersionInfo, isCurrentWorkspaceOwner } = useAppContext()
   const { isEducationAccount } = useProviderContext()
   const { setShowAccountSettingModal } = useModalContext()
+  const { isDeveloperOnly } = usePermission()
 
   const { mutateAsync: logout } = useLogout()
   const handleLogout = async () => {
@@ -175,7 +177,7 @@ export default function AppSelector() {
             />
           </DropdownMenuGroup>
           <DropdownMenuSeparator className="my-0! bg-divider-subtle" />
-          {!systemFeatures.branding.enabled && (
+          {!systemFeatures.branding.enabled && isDeveloperOnly() && (
             <>
               <AccountMenuSection>
                 <AccountMenuExternalItem

@@ -719,3 +719,449 @@ class CheckEmailUnique(Resource):
         if not AccountService.check_email_unique(normalized_email):
             raise EmailAlreadyInUseError()
         return {"result": "success"}
+
+
+class AccountRoleResponseModel(BaseModel):
+    account_id: str
+    role: str
+
+
+class AccountRoleUpdatePayload(BaseModel):
+    account_id: str
+    role: str
+
+
+# 注册 schema model
+register_schema_models(console_ns, AccountRoleResponseModel)
+
+
+@console_ns.route("/account/role")
+class AccountRoleApi(Resource):
+    @setup_required
+    @login_required
+    @account_initialization_required
+    @console_ns.response(200, "Success", console_ns.models[AccountRoleResponseModel.__name__])
+    def get(self):
+        """获取当前用户身份"""
+        current_user, _ = current_account_with_tenant()
+        return {
+            "account_id": current_user.id,
+            "role": current_user.account_role or "user"
+        }
+
+
+class AccountListItem(BaseModel):
+    account_id: str
+    name: str | None
+    email: str | None
+    avatar: str | None
+    account_role: str
+    status: str
+    last_login_ip: str | None
+    created_at: str | None
+    updated_at: str | None
+    departments: list[str]
+
+
+class AccountListResponse(BaseModel):
+    data: list[AccountListItem]
+    total: int
+
+
+register_schema_models(console_ns, AccountListItem)
+register_schema_models(console_ns, AccountListResponse)
+
+
+@console_ns.route("/accounts")
+class AccountListApi(Resource):
+    @setup_required
+    @login_required
+    @account_initialization_required
+    @console_ns.response(200, "Success", console_ns.models[AccountListResponse.__name__])
+    def get(self):
+        """获取用户列表（根据当前用户角色过滤）"""
+        from models.account import Account
+
+        current_user, _ = current_account_with_tenant()
+        current_role = current_user.account_role or "user"
+
+        # 查询所有账户
+        accounts = db.session.scalars(select(Account)).all()
+
+        # 根据当前用户角色过滤可见用户
+        visible_accounts = []
+        for acc in accounts:
+            acc_role = acc.account_role or "user"
+
+            # 不能看到自己
+            if acc.id == current_user.id:
+                continue
+
+            if current_role == "admin":
+                # admin 可以看到 dev, manager, user，不能看到其他 admin
+                if acc_role in ("dev", "manager", "user"):
+                    visible_accounts.append(acc)
+            elif current_role == "manager":
+                # manager 可以看到 manager, user，不能看到 admin/dev
+                if acc_role in ("manager", "user"):
+                    visible_accounts.append(acc)
+
+        # 获取用户的部门信息（包含部门名称）
+        from enterprise_api.models.department import AccountDepartmentJoin, Department
+        account_ids = [acc.id for acc in visible_accounts]
+        
+        # 查询所有相关的部门关联
+        dept_joins = []
+        dept_details = {}
+        if account_ids:
+            dept_joins = db.session.scalars(
+                select(AccountDepartmentJoin).where(AccountDepartmentJoin.account_id.in_(account_ids))
+            ).all()
+            
+            # 获取所有涉及的部门ID
+            dept_ids = {j.department_id for j in dept_joins}
+            if dept_ids:
+                depts = db.session.scalars(
+                    select(Department).where(Department.id.in_(dept_ids))
+                ).all()
+                dept_details = {d.id: d.name for d in depts}
+
+        # 按 account_id 分组部门ID
+        dept_id_map: dict[str, list[str]] = {}
+        for join in dept_joins:
+            if join.account_id not in dept_id_map:
+                dept_id_map[join.account_id] = []
+            dept_id_map[join.account_id].append(join.department_id)
+
+        data = [
+            {
+                "account_id": acc.id,
+                "name": acc.name,
+                "email": acc.email,
+                "avatar": acc.avatar,
+                "account_role": acc.account_role or "user",
+                "status": acc.status.value if acc.status else "active",
+                "last_login_ip": acc.last_login_ip,
+                "created_at": acc.created_at.isoformat() if acc.created_at else None,
+                "updated_at": acc.updated_at.isoformat() if acc.updated_at else None,
+                "departments": dept_id_map.get(acc.id, []),
+            }
+            for acc in visible_accounts
+        ]
+
+        return {"data": data, "total": len(data)}
+
+
+class AccountRoleUpdateRequest(BaseModel):
+    role: str = Field(..., description="新角色")
+
+
+register_schema_models(console_ns, AccountRoleUpdateRequest)
+
+
+@console_ns.route("/accounts/<account_id>/role")
+class AccountRoleUpdateApi(Resource):
+    @setup_required
+    @login_required
+    @account_initialization_required
+    @console_ns.expect(console_ns.models[AccountRoleUpdateRequest.__name__])
+    @console_ns.response(200, "Success", console_ns.models[AccountRoleResponseModel.__name__])
+    def patch(self, account_id: str):
+        """更新用户角色"""
+        from models.account import Account
+
+        current_user, _ = current_account_with_tenant()
+        current_role = current_user.account_role or "user"
+
+        # 只有 admin 和 manager 可以修改
+        if current_role not in ("admin", "manager"):
+            return {"error": "权限不足"}, 403
+
+        # 不能修改自己
+        if account_id == current_user.id:
+            return {"error": "不能修改自己的身份"}, 400
+
+        # 获取目标用户
+        target_account = db.session.scalar(select(Account).where(Account.id == account_id))
+        if not target_account:
+            return {"error": "用户不存在"}, 404
+
+        target_role = target_account.account_role or "user"
+
+        # admin 不能修改其他 admin
+        if current_role == "admin" and target_role == "admin":
+            return {"error": "不能修改其他超级管理员的身份"}, 403
+
+        # manager 不能修改其他 manager
+        if current_role == "manager" and target_role == "manager":
+            return {"error": "不能修改其他普通管理员的身份"}, 403
+
+        # 更新角色
+        payload = console_ns.payload or {}
+        args = AccountRoleUpdateRequest.model_validate(payload)
+        target_account.account_role = args.role
+        db.session.commit()
+
+        return {
+            "account_id": target_account.id,
+            "role": target_account.account_role or "user"
+        }
+
+
+class AccountInfoUpdateRequest(BaseModel):
+    name: str | None = None
+    status: str | None = None
+
+
+class ResetPasswordRequest(BaseModel):
+    pass
+
+
+class AccountDepartmentsRequest(BaseModel):
+    department_ids: list[str]
+
+
+register_schema_models(console_ns, AccountInfoUpdateRequest)
+register_schema_models(console_ns, ResetPasswordRequest)
+register_schema_models(console_ns, AccountDepartmentsRequest)
+
+
+@console_ns.route("/accounts/<account_id>/info")
+class AccountInfoUpdateApi(Resource):
+    @setup_required
+    @login_required
+    @account_initialization_required
+    @console_ns.expect(console_ns.models[AccountInfoUpdateRequest.__name__])
+    @console_ns.response(200, "Success", console_ns.models[AccountRoleResponseModel.__name__])
+    def patch(self, account_id: str):
+        """更新用户信息（名字、状态）"""
+        from models.account import Account, AccountStatus
+
+        current_user, _ = current_account_with_tenant()
+        current_role = current_user.account_role or "user"
+
+        # 只有 admin 和 manager 可以修改
+        if current_role not in ("admin", "manager"):
+            return {"error": "权限不足"}, 403
+
+        # 不能修改自己
+        if account_id == current_user.id:
+            return {"error": "不能修改自己的信息"}, 400
+
+        # 获取目标用户
+        target_account = db.session.scalar(select(Account).where(Account.id == account_id))
+        if not target_account:
+            return {"error": "用户不存在"}, 404
+
+        target_role = target_account.account_role or "user"
+
+        # admin 不能修改其他 admin
+        if current_role == "admin" and target_role == "admin":
+            return {"error": "不能修改其他超级管理员的信息"}, 403
+
+        # manager 不能修改其他 manager
+        if current_role == "manager" and target_role == "manager":
+            return {"error": "不能修改其他普通管理员的信息"}, 403
+
+        # 更新信息
+        payload = console_ns.payload or {}
+        args = AccountInfoUpdateRequest.model_validate(payload)
+
+        if args.name is not None:
+            target_account.name = args.name
+        if args.status is not None:
+            try:
+                target_account.status = AccountStatus(args.status)
+            except ValueError:
+                return {"error": "无效的状态值"}, 400
+
+        db.session.commit()
+
+        return {
+            "account_id": target_account.id,
+            "role": target_account.account_role or "user"
+        }
+
+
+@console_ns.route("/accounts/<account_id>/reset-password")
+class AccountResetPasswordApi(Resource):
+    @setup_required
+    @login_required
+    @account_initialization_required
+    @console_ns.expect(console_ns.models[ResetPasswordRequest.__name__])
+    def post(self, account_id: str):
+        """重置用户密码"""
+        from models.account import Account
+        from services.account_service import AccountService
+
+        current_user, _ = current_account_with_tenant()
+        current_role = current_user.account_role or "user"
+
+        # 只有 admin 可以重置密码
+        if current_role != "admin":
+            return {"error": "权限不足，只有管理员可以重置密码"}, 403
+
+        # 不能重置自己
+        if account_id == current_user.id:
+            return {"error": "不能重置自己的密码"}, 400
+
+        # 获取目标用户
+        target_account = db.session.scalar(select(Account).where(Account.id == account_id))
+        if not target_account:
+            return {"error": "用户不存在"}, 404
+
+        target_role = target_account.account_role or "user"
+
+        # admin 不能重置其他 admin 的密码
+        if target_role == "admin":
+            return {"error": "不能重置其他超级管理员的密码"}, 403
+
+        # 重置密码（设置为 None，会生成随机密码）
+        AccountService.update_account_password(target_account, None, None)
+
+        return {"result": "success", "message": "密码已重置"}
+
+
+@console_ns.route("/accounts/<account_id>/departments")
+class AccountDepartmentsApi(Resource):
+    @setup_required
+    @login_required
+    @account_initialization_required
+    @console_ns.response(200, "Success")
+    def get(self, account_id: str):
+        """获取用户的部门列表"""
+        from enterprise_api.models.department import AccountDepartmentJoin, Department
+
+        current_user, _ = current_account_with_tenant()
+        current_role = current_user.account_role or "user"
+
+        # 只有 admin 和 manager 可以查看
+        if current_role not in ("admin", "manager"):
+            return {"error": "权限不足"}, 403
+
+        # 查询用户的部门
+        joins = db.session.scalars(
+            select(AccountDepartmentJoin).where(AccountDepartmentJoin.account_id == account_id)
+        ).all()
+
+        department_ids = [j.department_id for j in joins]
+
+        # 获取部门详情
+        departments = []
+        if department_ids:
+            depts = db.session.scalars(
+                select(Department).where(Department.id.in_(department_ids))
+            ).all()
+            departments = [{"id": d.id, "name": d.name} for d in depts]
+
+        return {"data": departments, "total": len(departments)}
+
+    @setup_required
+    @login_required
+    @account_initialization_required
+    @console_ns.expect(console_ns.models[AccountDepartmentsRequest.__name__])
+    @console_ns.response(200, "Success")
+    def put(self, account_id: str):
+        """更新用户的部门"""
+        import uuid
+
+        from enterprise_api.models.department import AccountDepartmentJoin, Department
+
+        current_user, _ = current_account_with_tenant()
+        current_role = current_user.account_role or "user"
+
+        # 只有 admin 和 manager 可以修改
+        if current_role not in ("admin", "manager"):
+            return {"error": "权限不足"}, 403
+
+        # 不能修改自己
+        if account_id == current_user.id:
+            return {"error": "不能修改自己的部门"}, 400
+
+        # 获取目标用户
+        from models.account import Account
+        target_account = db.session.scalar(select(Account).where(Account.id == account_id))
+        if not target_account:
+            return {"error": "用户不存在"}, 404
+
+        target_role = target_account.account_role or "user"
+
+        # admin 不能修改其他 admin 的部门
+        if current_role == "admin" and target_role == "admin":
+            return {"error": "不能修改其他超级管理员的部门"}, 403
+
+        # manager 不能修改其他 manager 的部门
+        if current_role == "manager" and target_role == "manager":
+            return {"error": "不能修改其他普通管理员的部门"}, 403
+
+        payload = console_ns.payload or {}
+        args = AccountDepartmentsRequest.model_validate(payload)
+
+        # 验证部门存在
+        if args.department_ids:
+            existing_depts = db.session.scalars(
+                select(Department).where(Department.id.in_(args.department_ids))
+            ).all()
+            if len(existing_depts) != len(args.department_ids):
+                return {"error": "部分部门不存在"}, 400
+
+        # 删除旧关联
+        db.session.query(AccountDepartmentJoin).filter(
+            AccountDepartmentJoin.account_id == account_id
+        ).delete()
+
+        # 创建新关联
+        for dept_id in args.department_ids:
+            join = AccountDepartmentJoin(
+                id=str(uuid.uuid4()),
+                account_id=account_id,
+                department_id=dept_id,
+                tenant_id=current_user.current_tenant_id or "",
+            )
+            db.session.add(join)
+
+        db.session.commit()
+
+        return {"result": "success", "message": "部门已更新"}
+
+
+class BatchImportRequest(BaseModel):
+    pass  # 文件上传通过 request.files 处理
+
+
+register_schema_models(console_ns, BatchImportRequest)
+
+
+@console_ns.route("/accounts/batch-import")
+class BatchImportAccountApi(Resource):
+    @setup_required
+    @login_required
+    @account_initialization_required
+    def post(self):
+        """批量导入用户"""
+        current_user, _ = current_account_with_tenant()
+        current_role = current_user.account_role or "user"
+
+        # 只有 admin 可以批量导入
+        if current_role != "admin":
+            return {"error": "权限不足，只有管理员可以批量导入用户"}, 403
+
+        # 获取上传的文件
+        if 'file' not in request.files:
+            return {"error": "请上传文件"}, 400
+
+        file = request.files['file']
+        if not file.filename:
+            return {"error": "请上传文件"}, 400
+
+        if not (file.filename.endswith('.csv') or file.filename.endswith('.xlsx') or file.filename.endswith('.xls')):
+            return {"error": "只支持 CSV 或 Excel 文件"}, 400
+
+        # 调用服务层处理
+        result = AccountService.batch_import_accounts(
+            file=file,
+            operator_id=current_user.id,
+            tenant_id=current_user.current_tenant_id or ""
+        )
+
+        return result
