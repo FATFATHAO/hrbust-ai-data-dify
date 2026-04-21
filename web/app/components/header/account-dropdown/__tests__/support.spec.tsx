@@ -83,6 +83,8 @@ describe('Support', () => {
     useSelector: vi.fn(),
     isLoadingCurrentWorkspace: false,
     isValidatingCurrentWorkspace: false,
+    accountRole: 'user',
+    mutateAccountRole: vi.fn(),
   }
 
   beforeEach(() => {

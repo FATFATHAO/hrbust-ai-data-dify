@@ -31,6 +31,10 @@ export const MARKETPLACE_URL_PREFIX = getStringConfig(
   env.NEXT_PUBLIC_MARKETPLACE_URL_PREFIX,
   '',
 )
+export const ENTERPRISE_API_PREFIX = getStringConfig(
+  env.NEXT_PUBLIC_ENTERPRISE_API_PREFIX,
+  'http://localhost:5002/enterprise/api',
+)
 
 const EDITION = env.NEXT_PUBLIC_EDITION
 

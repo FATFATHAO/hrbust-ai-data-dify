@@ -1,4 +1,5 @@
 import type { AppContextValue } from '@/context/app-context'
+import type { AccountRole } from '@/types/permission'
 import type { AgentLogItemWithChildren } from '@/types/workflow'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -38,6 +39,8 @@ const createAppContextValue = (): AppContextValue => {
     langGeniusVersionInfo: initialLangGeniusVersionInfo,
     isLoadingCurrentWorkspace: false,
     isValidatingCurrentWorkspace: false,
+    accountRole: 'user' as AccountRole,
+    mutateAccountRole: vi.fn(),
   }
   const useSelector: AppContextValue['useSelector'] = selector => selector(value)
   value = {

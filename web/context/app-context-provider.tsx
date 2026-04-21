@@ -2,6 +2,7 @@
 
 import type { FC, ReactNode } from 'react'
 import type { ICurrentWorkspace, LangGeniusVersionResponse, UserProfileResponse } from '@/models/common'
+import type { AccountRole } from '@/types/permission'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo } from 'react'
 import { setUserId, setUserProperties } from '@/app/components/base/amplitude'
@@ -16,6 +17,7 @@ import {
   useSelector,
 } from '@/context/app-context'
 import { env } from '@/env'
+import { useAccountRole } from '@/service/use-account-role'
 import {
   useCurrentWorkspace,
   useLangGeniusVersion,
@@ -36,6 +38,7 @@ export const AppContextProvider: FC<AppContextProviderProps> = ({ children }) =>
     userProfileResp?.meta.currentVersion,
     !systemFeatures.branding.enabled,
   )
+  const { data: accountRoleResp } = useAccountRole(userProfileResp?.profile?.id)
 
   const userProfile = useMemo<UserProfileResponse>(() => userProfileResp?.profile || userProfilePlaceholder, [userProfileResp?.profile])
   const currentWorkspace = useMemo<ICurrentWorkspace>(() => currentWorkspaceResp || initialWorkspaceInfo, [currentWorkspaceResp])
@@ -54,6 +57,8 @@ export const AppContextProvider: FC<AppContextProviderProps> = ({ children }) =>
     }
   }, [langGeniusVersionQuery.data, userProfileResp?.meta])
 
+  const accountRole = useMemo<AccountRole>(() => accountRoleResp?.role || 'user', [accountRoleResp?.role])
+
   const isCurrentWorkspaceManager = useMemo(() => ['owner', 'admin'].includes(currentWorkspace.role), [currentWorkspace.role])
   const isCurrentWorkspaceOwner = useMemo(() => currentWorkspace.role === 'owner', [currentWorkspace.role])
   const isCurrentWorkspaceEditor = useMemo(() => ['owner', 'admin', 'editor'].includes(currentWorkspace.role), [currentWorkspace.role])
@@ -65,6 +70,10 @@ export const AppContextProvider: FC<AppContextProviderProps> = ({ children }) =>
 
   const mutateCurrentWorkspace = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: ['common', 'current-workspace'] })
+  }, [queryClient])
+
+  const mutateAccountRole = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ['account-role'] })
   }, [queryClient])
 
   // #region Zendesk conversation fields
@@ -141,6 +150,8 @@ export const AppContextProvider: FC<AppContextProviderProps> = ({ children }) =>
       mutateCurrentWorkspace,
       isLoadingCurrentWorkspace,
       isValidatingCurrentWorkspace,
+      accountRole,
+      mutateAccountRole,
     }}
     >
       <div className="flex h-full flex-col overflow-y-auto">

@@ -1,6 +1,7 @@
 'use client'
 
 import type { ICurrentWorkspace, LangGeniusVersionResponse, UserProfileResponse } from '@/models/common'
+import type { AccountRole } from '@/types/permission'
 import { noop } from 'es-toolkit/function'
 import { createContext, useContext, useContextSelector } from 'use-context-selector'
 
@@ -17,6 +18,9 @@ export type AppContextValue = {
   useSelector: typeof useSelector
   isLoadingCurrentWorkspace: boolean
   isValidatingCurrentWorkspace: boolean
+  // 自定义应用角色 (admin/manager/dev/user)
+  accountRole: AccountRole
+  mutateAccountRole: VoidFunction
 }
 
 export const userProfilePlaceholder = {
@@ -64,6 +68,8 @@ export const AppContext = createContext<AppContextValue>({
   useSelector,
   isLoadingCurrentWorkspace: false,
   isValidatingCurrentWorkspace: false,
+  accountRole: 'user',
+  mutateAccountRole: noop,
 })
 
 export function useSelector<T>(selector: (value: AppContextValue) => T): T {

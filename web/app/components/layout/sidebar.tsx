@@ -3,12 +3,14 @@
 import type * as React from 'react'
 import { cn } from '@langgenius/dify-ui/cn'
 import { useHover } from 'ahooks'
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useShallow } from 'zustand/react/shallow'
 import DataDevelopmentLogo from '@/app/components/base/logo/data-development-logo'
 import AccountDropdown from '@/app/components/header/account-dropdown'
 import Link from '@/next/link'
+import { ROLE_NAV_CONFIG } from '@/types/permission'
+import { usePermission } from '../permission/use-permission'
 import { useSidebarStore } from './sidebar-store'
 
 type NavItem = {
@@ -19,12 +21,12 @@ type NavItem = {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  {
-    label: '数据总览',
-    icon: 'i-heroicons-chart-bar',
-    activeIcon: 'i-heroicons-chart-bar-solid',
-    href: '/dashboard',
-  },
+  // {
+  //   label: '数据总览',
+  //   icon: 'i-heroicons-chart-bar',
+  //   activeIcon: 'i-heroicons-chart-bar-solid',
+  //   href: '/dashboard',
+  // },
   {
     label: '工作室',
     icon: 'i-heroicons-sparkles',
@@ -62,8 +64,15 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
     sidebarExpand: state.sidebarExpand,
     setSidebarExpand: state.setSidebarExpand,
   })))
+  const { accountRole } = usePermission()
 
   const expanded = sidebarExpand === 'expand'
+
+  // 根据用户角色过滤导航项
+  const visibleNavItems = useMemo(() => {
+    const allowedPaths = ROLE_NAV_CONFIG[accountRole] || ROLE_NAV_CONFIG.user
+    return NAV_ITEMS.filter(item => allowedPaths.some(path => item.href.startsWith(path)))
+  }, [accountRole])
 
   // Load saved state
   useEffect(() => {
@@ -118,7 +127,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
 
       {/* Nav Items */}
       <nav className={cn('flex flex-1 flex-col gap-y-1 py-3', expanded ? 'px-3' : 'px-2')}>
-        {NAV_ITEMS.map(item => (
+        {visibleNavItems.map(item => (
           <NavItem
             key={item.href}
             item={item}

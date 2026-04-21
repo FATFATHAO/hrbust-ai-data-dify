@@ -100,6 +100,8 @@ const buildAppContext = (overrides: Partial<AppContextValue> = {}): AppContextVa
     langGeniusVersionInfo,
     isLoadingCurrentWorkspace: false,
     isValidatingCurrentWorkspace: false,
+    accountRole: 'user',
+    mutateAccountRole: vi.fn(),
   }
   const useSelector: AppContextValue['useSelector'] = selector => selector({ ...base, useSelector })
   return {

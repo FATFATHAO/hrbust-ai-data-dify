@@ -719,3 +719,32 @@ class CheckEmailUnique(Resource):
         if not AccountService.check_email_unique(normalized_email):
             raise EmailAlreadyInUseError()
         return {"result": "success"}
+
+
+class AccountRoleResponseModel(BaseModel):
+    account_id: str
+    role: str
+
+
+class AccountRoleUpdatePayload(BaseModel):
+    account_id: str
+    role: str
+
+
+# 注册 schema model
+register_schema_models(console_ns, AccountRoleResponseModel)
+
+
+@console_ns.route("/account/role")
+class AccountRoleApi(Resource):
+    @setup_required
+    @login_required
+    @account_initialization_required
+    @console_ns.response(200, "Success", console_ns.models[AccountRoleResponseModel.__name__])
+    def get(self):
+        """获取当前用户身份"""
+        current_user, _ = current_account_with_tenant()
+        return {
+            "account_id": current_user.id,
+            "role": current_user.account_role or "user"
+        }

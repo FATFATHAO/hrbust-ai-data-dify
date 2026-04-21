@@ -91,6 +91,8 @@ const createAppContextValue = (): AppContextValue => ({
   useSelector: vi.fn() as unknown as AppContextValue['useSelector'],
   isLoadingCurrentWorkspace: false,
   isValidatingCurrentWorkspace: false,
+  accountRole: 'user',
+  mutateAccountRole: vi.fn(),
 })
 
 const createSystemFeatures = (): SystemFeatures => ({

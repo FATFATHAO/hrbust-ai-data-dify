@@ -72,6 +72,10 @@ const clientSchema = {
   NEXT_PUBLIC_ENABLE_WEBSITE_JINAREADER: coercedBoolean.default(true),
   NEXT_PUBLIC_ENABLE_WEBSITE_WATERCRAWL: coercedBoolean.default(false),
   /**
+   * The API prefix for Enterprise API
+   */
+  NEXT_PUBLIC_ENTERPRISE_API_PREFIX: z.string().optional(),
+  /**
    * The maximum number of tokens for segmentation
    */
   NEXT_PUBLIC_INDEXING_MAX_SEGMENTATION_TOKENS_LENGTH: coercedNumber.default(4000),
@@ -170,6 +174,7 @@ export const env = createEnv({
     NEXT_PUBLIC_DEPLOY_ENV: isServer ? process.env.NEXT_PUBLIC_DEPLOY_ENV : getRuntimeEnvFromBody('deployEnv'),
     NEXT_PUBLIC_DISABLE_UPLOAD_IMAGE_AS_ICON: isServer ? process.env.NEXT_PUBLIC_DISABLE_UPLOAD_IMAGE_AS_ICON : getRuntimeEnvFromBody('disableUploadImageAsIcon'),
     NEXT_PUBLIC_EDITION: isServer ? process.env.NEXT_PUBLIC_EDITION : getRuntimeEnvFromBody('edition'),
+    NEXT_PUBLIC_ENTERPRISE_API_PREFIX: isServer ? process.env.NEXT_PUBLIC_ENTERPRISE_API_PREFIX : getRuntimeEnvFromBody('enterpriseApiPrefix'),
     NEXT_PUBLIC_ENABLE_SINGLE_DOLLAR_LATEX: isServer ? process.env.NEXT_PUBLIC_ENABLE_SINGLE_DOLLAR_LATEX : getRuntimeEnvFromBody('enableSingleDollarLatex'),
     NEXT_PUBLIC_ENABLE_WEBSITE_FIRECRAWL: isServer ? process.env.NEXT_PUBLIC_ENABLE_WEBSITE_FIRECRAWL : getRuntimeEnvFromBody('enableWebsiteFirecrawl'),
     NEXT_PUBLIC_ENABLE_WEBSITE_JINAREADER: isServer ? process.env.NEXT_PUBLIC_ENABLE_WEBSITE_JINAREADER : getRuntimeEnvFromBody('enableWebsiteJinareader'),
