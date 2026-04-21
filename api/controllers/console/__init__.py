@@ -32,9 +32,11 @@ for module_name in RESOURCE_MODULES:
 
 # Ensure resource modules are imported so route decorators are evaluated.
 # Import other controllers
+# Import department controllers
 from . import (
     admin,
     apikey,
+    departments,
     extension,
     feature,
     human_input_form,
@@ -168,6 +170,7 @@ __all__ = [
     "datasets_segments",
     "datasource_auth",
     "datasource_content_preview",
+    "departments",
     "email_register",
     "endpoint",
     "extension",
