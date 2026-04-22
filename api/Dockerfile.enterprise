@@ -30,7 +30,24 @@ RUN . /app/.venv/bin/activate && uv pip install --no-cache-dir --index-url https
 # Copy enterprise_api source code
 COPY enterprise_api /app/enterprise_api
 COPY enterprise_chat_api /app/enterprise_chat_api
-COPY api /app/api
+COPY models /app/api/models
+COPY libs /app/api/libs
+COPY configs /app/api/configs
+COPY extensions /app/api/extensions
+COPY services /app/api/services
+COPY core /app/api/core
+COPY constants /app/api/constants
+COPY enums /app/api/enums
+COPY events /app/api/events
+COPY factories /app/api/factories
+COPY tasks /app/api/tasks
+COPY repositories /app/api/repositories
+COPY contexts /app/api/contexts
+COPY context /app/api/context
+COPY enterprise /app/api/enterprise
+COPY dify_app.py /app/api/dify_app.py
+COPY app_factory.py /app/api/app_factory.py
+COPY pyproject.toml /app/api/pyproject.toml
 
 # Set environment variables
 ENV VIRTUAL_ENV=/app/.venv
