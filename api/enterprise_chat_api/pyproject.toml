@@ -97,6 +97,9 @@ dependencies = [
     "aiofiles>=23.0.0",
     "python-dotenv>=1.0.0",
 
+    # Web scraping
+    "cloudscraper>=1.2.58",
+
     # Data processing
     "numpy>=1.24.0",
     "pandas>=2.0.0",
