@@ -44,6 +44,7 @@ COPY tasks /app/api/tasks
 COPY repositories /app/api/repositories
 COPY contexts /app/api/contexts
 COPY context /app/api/context
+COPY enterprise /app/api/enterprise
 COPY dify_app.py /app/api/dify_app.py
 COPY app_factory.py /app/api/app_factory.py
 COPY pyproject.toml /app/api/pyproject.toml
