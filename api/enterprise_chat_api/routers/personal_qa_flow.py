@@ -9,7 +9,6 @@ from sqlalchemy.orm import Session
 from enterprise_api.database import get_db
 from enterprise_api.deps import CurrentUser, get_current_user
 from enterprise_chat_api.models.personal_qa_flow import PersonalQAFlow
-from models.dataset import Dataset
 from enterprise_chat_api.schemas.department_qa_flow import (
     DatasetInfo,
     DatasetListResponse,
@@ -22,6 +21,7 @@ from enterprise_chat_api.schemas.personal_qa_flow import (
 )
 from enterprise_chat_api.services.knowledge_base_service import KnowledgeBaseService
 from enterprise_chat_api.services.qa_flow_service import QAFlowService
+from models.dataset import Dataset
 
 router = APIRouter()
 
@@ -214,8 +214,8 @@ async def update_personal_qa_flow(
 # @router.delete("/{flow_id}", status_code=status.HTTP_204_NO_CONTENT)
 # async def delete_personal_qa_flow(
 #     flow_id: str,
-#     db: Session = Depends(get_db),  # noqa: B008
-#     current_user: CurrentUser = Depends(get_current_user),  # noqa: B008
+#     db: Session = Depends(get_db),
+#     current_user: CurrentUser = Depends(get_current_user),
 # ):
 #     """
 #     删除个人问答流

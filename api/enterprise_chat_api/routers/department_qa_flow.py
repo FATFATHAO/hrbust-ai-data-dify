@@ -10,7 +10,6 @@ from enterprise_api.database import get_db
 from enterprise_api.deps import CurrentUser, get_current_user
 from enterprise_api.models.department import Department
 from enterprise_chat_api.models.department_qa_flow import DepartmentQAFlow
-from models.dataset import Dataset
 from enterprise_chat_api.schemas.department_qa_flow import (
     DatasetInfo,
     DatasetListResponse,
@@ -21,6 +20,7 @@ from enterprise_chat_api.schemas.department_qa_flow import (
 )
 from enterprise_chat_api.services.knowledge_base_service import KnowledgeBaseService
 from enterprise_chat_api.services.qa_flow_service import QAFlowService
+from models.dataset import Dataset
 
 router = APIRouter()
 
@@ -273,8 +273,8 @@ async def update_department_qa_flow(
 # async def delete_department_qa_flow(
 #     department_id: str,
 #     flow_id: str,
-#     db: Session = Depends(get_db),  # noqa: B008
-#     current_user: CurrentUser = Depends(get_current_user),  # noqa: B008
+#     db: Session = Depends(get_db),
+#     current_user: CurrentUser = Depends(get_current_user),
 # ):
 #     """
 #     删除部门问答流

@@ -15,13 +15,13 @@ logger = logging.getLogger(__name__)
 
 def _init_redis():
     """Initialize Redis client for enterprise API."""
+    from configs import dify_config
     from extensions.ext_redis import (
         _create_standalone_client,
         _get_base_redis_params,
         _get_ssl_configuration,
         redis_client,
     )
-    from configs import dify_config
 
     redis_params = _get_base_redis_params()
     connection_class, ssl_kwargs = _get_ssl_configuration()
