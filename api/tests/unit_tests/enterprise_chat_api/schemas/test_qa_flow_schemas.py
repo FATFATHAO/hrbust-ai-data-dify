@@ -5,12 +5,11 @@ import pytest
 from pydantic import ValidationError
 
 from enterprise_chat_api.schemas.department_qa_flow import (
-    QAFlowCreate,
-    QAFlowUpdate,
-    QAFlowResponse,
-    QAFlowListResponse,
     DatasetInfo,
     DatasetListResponse,
+    QAFlowCreate,
+    QAFlowResponse,
+    QAFlowUpdate,
 )
 
 

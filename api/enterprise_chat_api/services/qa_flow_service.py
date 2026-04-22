@@ -4,19 +4,18 @@ QA Flow Service
 """
 
 import logging
-import os
-from typing import Optional
+from pathlib import Path
 
-import yaml
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from enterprise_api.models.department import Department
 from enterprise_chat_api.config import get_dsl_file_path
-from enterprise_chat_api.schemas.department_qa_flow import QAFlowCreate, QAFlowUpdate
 from enterprise_chat_api.models.department_qa_flow import DepartmentQAFlow
 from enterprise_chat_api.models.personal_qa_flow import PersonalQAFlow
-from enterprise_api.models.department import Department
+from enterprise_chat_api.schemas.department_qa_flow import QAFlowCreate, QAFlowUpdate
+from models import Account, Tenant, TenantAccountJoin, TenantAccountRole
 from services.app_dsl_service import AppDslService
-from models import Account
 
 logger = logging.getLogger(__name__)
 
@@ -29,10 +28,9 @@ class QAFlowService:
 
     def _read_dsl_file(self, file_path: str) -> str:
         """读取 DSL YAML 文件"""
-        if not os.path.exists(file_path):
+        if not Path(file_path).exists():
             raise FileNotFoundError(f"DSL file not found: {file_path}")
-        with open(file_path, "r", encoding="utf-8") as f:
-            return f.read()
+        return Path(file_path).read_text(encoding="utf-8")
 
     def _get_default_dsl_path(self) -> str:
         """获取默认 DSL 文件路径"""
@@ -54,7 +52,17 @@ class QAFlowService:
             raise ValueError(f"Account not found: {created_by}")
 
         # 设置 tenant context（临时，不持久化）
-        account.current_tenant_id = department.tenant_id
+        stmt = (
+            select(Tenant, TenantAccountJoin)
+            .where(Tenant.id == department.tenant_id)
+            .where(TenantAccountJoin.tenant_id == Tenant.id)
+            .where(TenantAccountJoin.account_id == account.id)
+        )
+        result = self._db.execute(stmt).first()
+        if result:
+            tenant, join = result
+            account.role = TenantAccountRole(join.role)
+            account._current_tenant = tenant
 
         # 3. 使用 AppDslService 导入
         app_dsl_service = AppDslService(self._db)
@@ -106,7 +114,17 @@ class QAFlowService:
             raise ValueError(f"Account not found: {account_id}")
 
         # 设置 tenant context（临时，不持久化）
-        account.current_tenant_id = tenant_id
+        stmt = (
+            select(Tenant, TenantAccountJoin)
+            .where(Tenant.id == tenant_id)
+            .where(TenantAccountJoin.tenant_id == Tenant.id)
+            .where(TenantAccountJoin.account_id == account.id)
+        )
+        result = self._db.execute(stmt).first()
+        if result:
+            tenant, join = result
+            account.role = TenantAccountRole(join.role)
+            account._current_tenant = tenant
 
         # 3. 使用 AppDslService 导入
         app_dsl_service = AppDslService(self._db)

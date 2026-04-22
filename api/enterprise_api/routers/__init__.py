@@ -4,9 +4,10 @@ Enterprise API Routers
 
 from fastapi import APIRouter
 
-from .account_role import router as account_role_router
 from enterprise_chat_api.routers.department_qa_flow import router as department_qa_flow_router
 from enterprise_chat_api.routers.personal_qa_flow import router as personal_qa_flow_router
+
+from .account_role import router as account_role_router
 from .dataset import router as dataset_router
 from .department import router as department_router
 from .super_admin import router as super_admin_router

@@ -1,14 +1,15 @@
 """
 Unit tests for QAFlowService.
 """
-import pytest
 from unittest.mock import MagicMock, patch
 from uuid import uuid4
 
-from enterprise_chat_api.services.qa_flow_service import QAFlowService
-from enterprise_chat_api.schemas.department_qa_flow import QAFlowCreate, QAFlowUpdate
+import pytest
+
 from enterprise_chat_api.models.department_qa_flow import DepartmentQAFlow
 from enterprise_chat_api.models.personal_qa_flow import PersonalQAFlow
+from enterprise_chat_api.schemas.department_qa_flow import QAFlowUpdate
+from enterprise_chat_api.services.qa_flow_service import QAFlowService
 from services.app_dsl_service import ImportStatus
 
 
@@ -226,7 +227,9 @@ version: "0.6.0"
 class TestQAFlowServiceWithPendingImport:
     """Test QAFlowService with PENDING status import result."""
 
-    def test_create_department_qa_flow_pending_status(self, mock_db, mock_department, mock_account, mock_qa_flow_create):
+    def test_create_department_qa_flow_pending_status(
+        self, mock_db, mock_department, mock_account, mock_qa_flow_create
+    ):
         """Test department QA flow creation when import returns PENDING status."""
         mock_import_result = MagicMock()
         mock_import_result.status = ImportStatus.PENDING
@@ -303,7 +306,9 @@ class TestQAFlowServiceWorkflowIdBehavior:
             added_obj = mock_db.add.call_args[0][0]
             assert added_obj.dataset_ids == ["ds-1", "ds-2"]
 
-    def test_department_qa_flow_default_status_is_active(self, mock_db, mock_department, mock_account, mock_qa_flow_create):
+    def test_department_qa_flow_default_status_is_active(
+        self, mock_db, mock_department, mock_account, mock_qa_flow_create
+    ):
         """Newly created department QA flows have status='active' by default."""
         app_id = str(uuid4())
 

@@ -2,12 +2,13 @@
 Unit tests for personal_qa_flow router.
 """
 import asyncio
-import pytest
+from http import HTTPStatus
 from unittest.mock import MagicMock, patch
 from uuid import uuid4
-from http import HTTPStatus
 
+import pytest
 from fastapi import HTTPException
+
 from enterprise_chat_api.schemas.department_qa_flow import QAFlowUpdate
 
 

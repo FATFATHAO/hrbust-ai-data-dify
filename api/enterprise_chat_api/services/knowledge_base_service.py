@@ -3,9 +3,7 @@ Knowledge Base Service
 知识库权限和服务
 """
 
-from typing import Optional
 
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from enterprise_api.models.department import AccountDepartmentJoin, DatasetDepartmentBinding

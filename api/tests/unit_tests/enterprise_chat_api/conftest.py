@@ -2,11 +2,10 @@
 Fixtures for enterprise_chat_api unit tests.
 """
 import os
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 from uuid import uuid4
 
 import pytest
-
 
 # Ensure OpenDAL fs writes to tmp to avoid polluting workspace
 os.environ.setdefault("OPENDAL_SCHEME", "fs")

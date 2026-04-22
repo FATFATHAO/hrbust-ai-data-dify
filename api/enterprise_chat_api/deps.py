@@ -5,16 +5,16 @@ Enterprise Chat API 依赖
 
 from enterprise_api.deps import (
     CurrentUser,
-    get_current_user,
-    require_editor,
-    require_admin,
     UserRole,
+    get_current_user,
+    require_admin,
+    require_editor,
 )
 
 __all__ = [
     "CurrentUser",
-    "get_current_user",
-    "require_editor",
-    "require_admin",
     "UserRole",
+    "get_current_user",
+    "require_admin",
+    "require_editor",
 ]

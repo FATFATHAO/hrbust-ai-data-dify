@@ -5,10 +5,8 @@ Personal QA Flow Model
 
 import uuid
 from datetime import datetime
-from typing import Optional
 
-from sqlalchemy import DateTime, Index, String, Text
-from sqlalchemy import JSON
+from sqlalchemy import JSON, DateTime, Index, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from enterprise_api.database import Base
@@ -25,11 +23,11 @@ class PersonalQAFlow(Base):
     tenant_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
     account_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
-    description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
     dsl_file_path: Mapped[str] = mapped_column(String(512), nullable=False)
-    app_id: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
-    workflow_id: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
-    dataset_ids: Mapped[Optional[list]] = mapped_column(JSON, nullable=True, default=list)
+    app_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    workflow_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    dataset_ids: Mapped[list | None] = mapped_column(JSON, nullable=True, default=list)
     status: Mapped[str] = mapped_column(String(20), default="active")
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

@@ -9,18 +9,19 @@ from sqlalchemy.orm import Session
 from enterprise_api.database import get_db
 from enterprise_api.deps import CurrentUser, get_current_user
 from enterprise_chat_api.models.personal_qa_flow import PersonalQAFlow
-from enterprise_chat_api.schemas.personal_qa_flow import (
-    PersonalQAFlowResponse,
-    PersonalQAFlowListResponse,
-)
+from models.dataset import Dataset
 from enterprise_chat_api.schemas.department_qa_flow import (
     DatasetInfo,
     DatasetListResponse,
     QAFlowCreate,
     QAFlowUpdate,
 )
-from enterprise_chat_api.services.qa_flow_service import QAFlowService
+from enterprise_chat_api.schemas.personal_qa_flow import (
+    PersonalQAFlowListResponse,
+    PersonalQAFlowResponse,
+)
 from enterprise_chat_api.services.knowledge_base_service import KnowledgeBaseService
+from enterprise_chat_api.services.qa_flow_service import QAFlowService
 
 router = APIRouter()
 
@@ -41,8 +42,8 @@ def require_flow_owner(
 
 @router.get("/datasets", response_model=DatasetListResponse)
 async def list_user_datasets(
-    db: Session = Depends(get_db),
-    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),  # noqa: B008
+    current_user: CurrentUser = Depends(get_current_user),  # noqa: B008
 ):
     """
     获取用户可用的知识库列表
@@ -61,11 +62,42 @@ async def list_user_datasets(
     )
 
 
+@router.get("/{flow_id}/datasets", response_model=DatasetListResponse)
+async def get_personal_qa_flow_datasets(
+    flow_id: str,
+    db: Session = Depends(get_db),  # noqa: B008
+    current_user: CurrentUser = Depends(get_current_user),  # noqa: B008
+):
+    """
+    获取个人问答流已绑定的知识库列表
+    """
+    flow = db.query(PersonalQAFlow).filter(
+        PersonalQAFlow.id == flow_id,
+        PersonalQAFlow.account_id == current_user.id,
+        PersonalQAFlow.tenant_id == current_user.tenant_id,
+    ).first()
+
+    if not flow:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="QA flow not found",
+        )
+
+    if not flow.dataset_ids:
+        return DatasetListResponse(data=[], total=0)
+
+    datasets = db.query(Dataset).filter(Dataset.id.in_(flow.dataset_ids)).all()
+    return DatasetListResponse(
+        data=[DatasetInfo(id=ds.id, name=ds.name, description=ds.description) for ds in datasets],
+        total=len(datasets),
+    )
+
+
 @router.post("", response_model=PersonalQAFlowResponse, status_code=status.HTTP_201_CREATED)
 async def create_personal_qa_flow(
     flow_data: QAFlowCreate,
-    db: Session = Depends(get_db),
-    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),  # noqa: B008
+    current_user: CurrentUser = Depends(get_current_user),  # noqa: B008
 ):
     """
     创建个人问答流
@@ -94,8 +126,8 @@ async def create_personal_qa_flow(
 
 @router.get("", response_model=PersonalQAFlowListResponse)
 async def list_personal_qa_flows(
-    db: Session = Depends(get_db),
-    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),  # noqa: B008
+    current_user: CurrentUser = Depends(get_current_user),  # noqa: B008
 ):
     """
     获取个人问答流列表
@@ -116,8 +148,8 @@ async def list_personal_qa_flows(
 @router.get("/{flow_id}", response_model=PersonalQAFlowResponse)
 async def get_personal_qa_flow(
     flow_id: str,
-    db: Session = Depends(get_db),
-    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),  # noqa: B008
+    current_user: CurrentUser = Depends(get_current_user),  # noqa: B008
 ):
     """
     获取个人问答流详情
@@ -143,8 +175,8 @@ async def get_personal_qa_flow(
 async def update_personal_qa_flow(
     flow_id: str,
     flow_data: QAFlowUpdate,
-    db: Session = Depends(get_db),
-    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),  # noqa: B008
+    current_user: CurrentUser = Depends(get_current_user),  # noqa: B008
 ):
     """
     更新个人问答流
@@ -179,28 +211,28 @@ async def update_personal_qa_flow(
     return PersonalQAFlowResponse.model_validate(updated_flow)
 
 
-@router.delete("/{flow_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_personal_qa_flow(
-    flow_id: str,
-    db: Session = Depends(get_db),
-    current_user: CurrentUser = Depends(get_current_user),
-):
-    """
-    删除个人问答流
-
-    仅用户本人可操作
-    """
-    flow = db.query(PersonalQAFlow).filter(
-        PersonalQAFlow.id == flow_id,
-        PersonalQAFlow.account_id == current_user.id,
-        PersonalQAFlow.tenant_id == current_user.tenant_id,
-    ).first()
-
-    if not flow:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="QA flow not found",
-        )
-
-    service = QAFlowService(db)
-    service.delete_personal_qa_flow(flow)
+# @router.delete("/{flow_id}", status_code=status.HTTP_204_NO_CONTENT)
+# async def delete_personal_qa_flow(
+#     flow_id: str,
+#     db: Session = Depends(get_db),  # noqa: B008
+#     current_user: CurrentUser = Depends(get_current_user),  # noqa: B008
+# ):
+#     """
+#     删除个人问答流
+#
+#     仅用户本人可操作
+#     """
+#     flow = db.query(PersonalQAFlow).filter(
+#         PersonalQAFlow.id == flow_id,
+#         PersonalQAFlow.account_id == current_user.id,
+#         PersonalQAFlow.tenant_id == current_user.tenant_id,
+#     ).first()
+#
+#     if not flow:
+#         raise HTTPException(
+#             status_code=status.HTTP_404_NOT_FOUND,
+#             detail="QA flow not found",
+#         )
+#
+#     service = QAFlowService(db)
+#     service.delete_personal_qa_flow(flow)

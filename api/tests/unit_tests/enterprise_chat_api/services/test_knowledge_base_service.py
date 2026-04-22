@@ -1,7 +1,6 @@
 """
 Unit tests for KnowledgeBaseService.
 """
-import pytest
 from unittest.mock import MagicMock
 
 from enterprise_chat_api.services.knowledge_base_service import KnowledgeBaseService

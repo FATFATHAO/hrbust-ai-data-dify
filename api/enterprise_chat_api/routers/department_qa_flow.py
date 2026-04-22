@@ -10,6 +10,7 @@ from enterprise_api.database import get_db
 from enterprise_api.deps import CurrentUser, get_current_user
 from enterprise_api.models.department import Department
 from enterprise_chat_api.models.department_qa_flow import DepartmentQAFlow
+from models.dataset import Dataset
 from enterprise_chat_api.schemas.department_qa_flow import (
     DatasetInfo,
     DatasetListResponse,
@@ -18,8 +19,8 @@ from enterprise_chat_api.schemas.department_qa_flow import (
     QAFlowResponse,
     QAFlowUpdate,
 )
-from enterprise_chat_api.services.qa_flow_service import QAFlowService
 from enterprise_chat_api.services.knowledge_base_service import KnowledgeBaseService
+from enterprise_chat_api.services.qa_flow_service import QAFlowService
 
 router = APIRouter()
 
@@ -53,8 +54,8 @@ def require_department_creator(
 @router.get("/datasets", response_model=DatasetListResponse)
 async def list_department_datasets(
     department_id: str,
-    db: Session = Depends(get_db),
-    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),  # noqa: B008
+    current_user: CurrentUser = Depends(get_current_user),  # noqa: B008
 ):
     """
     获取部门可用的知识库列表
@@ -95,12 +96,55 @@ async def list_department_datasets(
     )
 
 
+@router.get("/{flow_id}/datasets", response_model=DatasetListResponse)
+async def get_department_qa_flow_datasets(
+    department_id: str,
+    flow_id: str,
+    db: Session = Depends(get_db),  # noqa: B008
+    current_user: CurrentUser = Depends(get_current_user),  # noqa: B008
+):
+    """
+    获取部门问答流已绑定的知识库列表
+    """
+    department = db.query(Department).filter(
+        Department.id == department_id,
+        Department.tenant_id == current_user.tenant_id,
+    ).first()
+
+    if not department:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Department not found",
+        )
+
+    flow = db.query(DepartmentQAFlow).filter(
+        DepartmentQAFlow.id == flow_id,
+        DepartmentQAFlow.department_id == department_id,
+        DepartmentQAFlow.tenant_id == current_user.tenant_id,
+    ).first()
+
+    if not flow:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="QA flow not found",
+        )
+
+    if not flow.dataset_ids:
+        return DatasetListResponse(data=[], total=0)
+
+    datasets = db.query(Dataset).filter(Dataset.id.in_(flow.dataset_ids)).all()
+    return DatasetListResponse(
+        data=[DatasetInfo(id=ds.id, name=ds.name, description=ds.description) for ds in datasets],
+        total=len(datasets),
+    )
+
+
 @router.post("", response_model=QAFlowResponse, status_code=status.HTTP_201_CREATED)
 async def create_department_qa_flow(
     department_id: str,
     flow_data: QAFlowCreate,
-    db: Session = Depends(get_db),
-    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),  # noqa: B008
+    current_user: CurrentUser = Depends(get_current_user),  # noqa: B008
 ):
     """
     创建部门问答流
@@ -132,8 +176,8 @@ async def create_department_qa_flow(
 @router.get("", response_model=QAFlowListResponse)
 async def list_department_qa_flows(
     department_id: str,
-    db: Session = Depends(get_db),
-    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),  # noqa: B008
+    current_user: CurrentUser = Depends(get_current_user),  # noqa: B008
 ):
     """
     获取部门问答流列表
@@ -157,8 +201,8 @@ async def list_department_qa_flows(
 async def get_department_qa_flow(
     department_id: str,
     flow_id: str,
-    db: Session = Depends(get_db),
-    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),  # noqa: B008
+    current_user: CurrentUser = Depends(get_current_user),  # noqa: B008
 ):
     """
     获取部门问答流详情
@@ -187,8 +231,8 @@ async def update_department_qa_flow(
     department_id: str,
     flow_id: str,
     flow_data: QAFlowUpdate,
-    db: Session = Depends(get_db),
-    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),  # noqa: B008
+    current_user: CurrentUser = Depends(get_current_user),  # noqa: B008
 ):
     """
     更新部门问答流
@@ -225,31 +269,31 @@ async def update_department_qa_flow(
     return QAFlowResponse.model_validate(updated_flow)
 
 
-@router.delete("/{flow_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_department_qa_flow(
-    department_id: str,
-    flow_id: str,
-    db: Session = Depends(get_db),
-    current_user: CurrentUser = Depends(get_current_user),
-):
-    """
-    删除部门问答流
-
-    仅部门创建者可操作
-    """
-    require_department_creator(db, department_id, current_user)
-
-    flow = db.query(DepartmentQAFlow).filter(
-        DepartmentQAFlow.id == flow_id,
-        DepartmentQAFlow.department_id == department_id,
-        DepartmentQAFlow.tenant_id == current_user.tenant_id,
-    ).first()
-
-    if not flow:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="QA flow not found",
-        )
-
-    service = QAFlowService(db)
-    service.delete_department_qa_flow(flow)
+# @router.delete("/{flow_id}", status_code=status.HTTP_204_NO_CONTENT)
+# async def delete_department_qa_flow(
+#     department_id: str,
+#     flow_id: str,
+#     db: Session = Depends(get_db),  # noqa: B008
+#     current_user: CurrentUser = Depends(get_current_user),  # noqa: B008
+# ):
+#     """
+#     删除部门问答流
+#
+#     仅部门创建者可操作
+#     """
+#     require_department_creator(db, department_id, current_user)
+#
+#     flow = db.query(DepartmentQAFlow).filter(
+#         DepartmentQAFlow.id == flow_id,
+#         DepartmentQAFlow.department_id == department_id,
+#         DepartmentQAFlow.tenant_id == current_user.tenant_id,
+#     ).first()
+#
+#     if not flow:
+#         raise HTTPException(
+#             status_code=status.HTTP_404_NOT_FOUND,
+#             detail="QA flow not found",
+#         )
+#
+#     service = QAFlowService(db)
+#     service.delete_department_qa_flow(flow)

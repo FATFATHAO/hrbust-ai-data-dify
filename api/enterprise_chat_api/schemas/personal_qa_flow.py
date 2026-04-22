@@ -4,7 +4,6 @@ Personal QA Flow Schema
 """
 
 from datetime import datetime
-from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -19,14 +18,14 @@ from enterprise_chat_api.schemas.department_qa_flow import (
 
 # 复用 department_qa_flow 的 schemas
 __all__ = [
-    "QAFlowCreate",
-    "QAFlowUpdate",
-    "QAFlowResponse",
-    "QAFlowListResponse",
     "DatasetInfo",
     "DatasetListResponse",
-    "PersonalQAFlowResponse",
     "PersonalQAFlowListResponse",
+    "PersonalQAFlowResponse",
+    "QAFlowCreate",
+    "QAFlowListResponse",
+    "QAFlowResponse",
+    "QAFlowUpdate",
 ]
 
 
@@ -36,14 +35,14 @@ class PersonalQAFlowResponse(BaseModel):
     tenant_id: str
     account_id: str
     name: str
-    description: Optional[str] = None
+    description: str | None = None
     dsl_file_path: str
-    app_id: Optional[str] = None
-    workflow_id: Optional[str] = None
+    app_id: str | None = None
+    workflow_id: str | None = None
     dataset_ids: list[str] = Field(default_factory=list)
     status: str = "active"
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
     class Config:
         from_attributes = True
