@@ -41,6 +41,13 @@ COPY enums /app/api/enums
 COPY events /app/api/events
 COPY factories /app/api/factories
 COPY tasks /app/api/tasks
+COPY contexts /app/api/contexts
+COPY schedule /app/api/schedule
+COPY storage /app/api/storage
+COPY providers /app/api/providers
+COPY repositories /app/api/repositories
+COPY controllers /app/api/controllers
+COPY fields /app/api/fields
 COPY dify_app.py /app/api/dify_app.py
 COPY app_factory.py /app/api/app_factory.py
 COPY pyproject.toml /app/api/pyproject.toml
