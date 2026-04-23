@@ -1,11 +1,23 @@
 #!/bin/bash
-
 set -x
 
 SCRIPT_DIR="$(dirname "$(realpath "$0")")"
-cd "$SCRIPT_DIR/../api"
+ROOT="$(dirname "$SCRIPT_DIR")"
 
+cd "$ROOT/api"
+
+# 1. 数据库迁移
 uv run flask db upgrade
 
-uv run \
-  flask run --host 0.0.0.0 --port=5001 --debug
+# 2. 启动 Console API (后台运行)
+uv run flask run --host 0.0.0.0 --port=5001 --debug &
+
+# 等待 Console API 启动
+sleep 3
+
+# 3. 启动 Enterprise API (port 5004)
+# 使用与 docker-compose 相同的 SECRET_KEY
+QA_FLOW_DSL_BASE_PATH="/home/soyor1n/HrbustGateway" \
+SECRET_KEY="sk-9f73s3ljTXVcMT3Blb3ljTqtsKiGHXVcMT3BlbkFJLK7U" \
+DATABASE_URL="postgresql://postgres:difyai123456@localhost:5432/dify" \
+uvicorn enterprise_api.main:app --host 0.0.0.0 --port 5004
