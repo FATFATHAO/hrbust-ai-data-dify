@@ -815,11 +815,15 @@ services:
       - "5002:5002"
       - "5004:5004"
     environment:
-      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres@db_postgres:5432/dify}
+      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:difyai123456@db_postgres:5432/dify}
       - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
       - SECRET_KEY=${SECRET_KEY:-dify-secret-key-change-in-production}
-      - QA_FLOW_DSL_BASE_PATH=${QA_FLOW_DSL_BASE_PATH:-/home/soyor1n/HrbustGateway}
+      - QA_FLOW_DSL_BASE_PATH=${QA_FLOW_DSL_BASE_PATH:-/app/enterprise_chat_api/}
       - PYTHONPATH=/app/api
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=difyai123456
+      - REDIS_DB=0
     depends_on:
       db_postgres:
         condition: service_healthy
