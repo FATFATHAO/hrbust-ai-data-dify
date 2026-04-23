@@ -13,10 +13,39 @@ from enterprise_api.routers import api_router
 logger = logging.getLogger(__name__)
 
 
+def _init_redis():
+    """Initialize Redis client for enterprise API."""
+    from configs import dify_config
+    from extensions.ext_redis import (
+        _create_standalone_client,
+        _get_base_redis_params,
+        _get_ssl_configuration,
+        redis_client,
+    )
+
+    redis_params = _get_base_redis_params()
+    connection_class, ssl_kwargs = _get_ssl_configuration()
+
+    params = {
+        **redis_params,
+        "host": dify_config.REDIS_HOST,
+        "port": dify_config.REDIS_PORT,
+        "connection_class": connection_class,
+    }
+    if dify_config.REDIS_MAX_CONNECTIONS:
+        params["max_connections"] = dify_config.REDIS_MAX_CONNECTIONS
+    if ssl_kwargs:
+        params.update(ssl_kwargs)
+
+    client = _create_standalone_client(redis_params)
+    redis_client.initialize(client)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """应用生命周期管理"""
     logger.info("Enterprise API starting up...")
+    _init_redis()
     yield
     logger.info("Enterprise API shutting down...")
 
