@@ -21,7 +21,7 @@ from enterprise_chat_api.schemas.personal_qa_flow import (
 )
 from enterprise_chat_api.services.knowledge_base_service import KnowledgeBaseService
 from enterprise_chat_api.services.qa_flow_service import QAFlowService
-from models.dataset import Dataset
+from models import Account, App, Dataset
 
 router = APIRouter()
 
@@ -83,6 +83,17 @@ async def get_personal_qa_flow_datasets(
             detail="QA flow not found",
         )
 
+    # 验证 App 是否存在，如果不存在则删除 orphaned 记录
+    if flow.app_id:
+        app = db.query(App).filter(App.id == flow.app_id).first()
+        if not app:
+            db.delete(flow)
+            db.commit()
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="QA flow not found",
+            )
+
     if not flow.dataset_ids:
         return DatasetListResponse(data=[], total=0)
 
@@ -139,9 +150,21 @@ async def list_personal_qa_flows(
         PersonalQAFlow.tenant_id == current_user.tenant_id,
     ).all()
 
+    # 验证并清理 orphaned flows（App 已被删除）
+    valid_flows = []
+    for f in flows:
+        if f.app_id:
+            app_exists = db.query(App).filter(App.id == f.app_id).first()
+            if not app_exists:
+                # App 已删除，清理记录
+                db.delete(f)
+                continue
+        valid_flows.append(f)
+    db.commit()
+
     return PersonalQAFlowListResponse(
-        data=[PersonalQAFlowResponse.model_validate(f) for f in flows],
-        total=len(flows),
+        data=[PersonalQAFlowResponse.model_validate(f) for f in valid_flows],
+        total=len(valid_flows),
     )
 
 
