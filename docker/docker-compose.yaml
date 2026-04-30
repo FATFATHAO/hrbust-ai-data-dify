@@ -813,6 +813,7 @@ services:
     restart: unless-stopped
     ports:
       - "5002:5002"
+      - "5004:5004"
     environment:
       - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:difyai123456@db_postgres:5432/dify}
       - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
@@ -831,6 +832,7 @@ services:
         condition: service_started
     volumes:
       - ../api/enterprise_api:/app/enterprise_api
+      - ../api/enterprise_chat_api:/app/enterprise_chat_api
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5002/health"]
       interval: 30s
@@ -1169,9 +1171,7 @@ services:
       [
         "sh",
         "-c",
-        "cp /docker-entrypoint-mount.sh /docker-entrypoint.sh && sed -i
-          's/\r$$//' /docker-entrypoint.sh && chmod +x /docker-entrypoint.sh &&
-          /docker-entrypoint.sh",
+        "cp /docker-entrypoint-mount.sh /docker-entrypoint.sh && sed -i 's/\r$$//' /docker-entrypoint.sh && chmod +x /docker-entrypoint.sh && /docker-entrypoint.sh",
       ]
     environment:
       # pls clearly modify the squid env vars to fit your network environment.
@@ -1223,9 +1223,7 @@ services:
       [
         "sh",
         "-c",
-        "cp /docker-entrypoint-mount.sh /docker-entrypoint.sh && sed -i
-          's/\r$$//' /docker-entrypoint.sh && chmod +x /docker-entrypoint.sh &&
-          /docker-entrypoint.sh",
+        "cp /docker-entrypoint-mount.sh /docker-entrypoint.sh && sed -i 's/\r$$//' /docker-entrypoint.sh && chmod +x /docker-entrypoint.sh && /docker-entrypoint.sh",
       ]
     environment:
       NGINX_SERVER_NAME: ${NGINX_SERVER_NAME:-_}
@@ -1304,8 +1302,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          'obclient -h127.0.0.1 -P2881 -uroot@test
-            -p${OCEANBASE_VECTOR_PASSWORD:-difyai123456} -e "SELECT 1;"',
+          'obclient -h127.0.0.1 -P2881 -uroot@test -p${OCEANBASE_VECTOR_PASSWORD:-difyai123456} -e "SELECT 1;"',
         ]
       interval: 10s
       retries: 30
@@ -1331,8 +1328,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          'mysql -h127.0.0.1 -P2881 -uroot
-            -p${OCEANBASE_VECTOR_PASSWORD:-difyai123456} -e "SELECT 1;"',
+          'mysql -h127.0.0.1 -P2881 -uroot -p${OCEANBASE_VECTOR_PASSWORD:-difyai123456} -e "SELECT 1;"',
         ]
       interval: 5s
       retries: 60
@@ -1380,9 +1376,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "curl -s -f -u Administrator:password
-            http://localhost:8091/pools/default/buckets | grep -q '\\[{' || exit
-            1",
+          "curl -s -f -u Administrator:password http://localhost:8091/pools/default/buckets | grep -q '\\[{' || exit 1",
         ]
       interval: 10s
       retries: 10
@@ -1524,8 +1518,7 @@ services:
       ETCD_SNAPSHOT_COUNT: ${ETCD_SNAPSHOT_COUNT:-50000}
     volumes:
       - ./volumes/milvus/etcd:/etcd
-    command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls
-      http://0.0.0.0:2379 --data-dir /etcd
+    command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
     healthcheck:
       test: ["CMD", "etcdctl", "endpoint", "health"]
       interval: 30s
@@ -1589,8 +1582,7 @@ services:
     environment:
       discovery.type: ${OPENSEARCH_DISCOVERY_TYPE:-single-node}
       bootstrap.memory_lock: ${OPENSEARCH_BOOTSTRAP_MEMORY_LOCK:-true}
-      OPENSEARCH_JAVA_OPTS: -Xms${OPENSEARCH_JAVA_OPTS_MIN:-512m}
-        -Xmx${OPENSEARCH_JAVA_OPTS_MAX:-1024m}
+      OPENSEARCH_JAVA_OPTS: -Xms${OPENSEARCH_JAVA_OPTS_MIN:-512m} -Xmx${OPENSEARCH_JAVA_OPTS_MAX:-1024m}
       OPENSEARCH_INITIAL_ADMIN_PASSWORD: ${OPENSEARCH_INITIAL_ADMIN_PASSWORD:-Qazwsxedc!@#123}
     ulimits:
       memlock:
@@ -1697,7 +1689,8 @@ services:
           memory: 2g
     entrypoint: ["sh", "-c", "sh /docker-entrypoint-mount.sh"]
     healthcheck:
-      test: ["CMD", "curl", "-s", "http://localhost:9200/_cluster/health?pretty"]
+      test:
+        ["CMD", "curl", "-s", "http://localhost:9200/_cluster/health?pretty"]
       interval: 30s
       timeout: 10s
       retries: 50

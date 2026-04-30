@@ -85,6 +85,31 @@ dependencies = [
     "httpx-sse~=0.4.0",
     "json-repair~=0.59.2",
     "opik~=1.11.2",
+    "deprecated>=1.2.0",
+
+    # Document processing
+    "markdown>=3.4.0",
+    "jinja2>=3.1.0",
+    "bcrypt>=4.0.0",
+    "cryptography>=41.0.0",
+    "requests>=2.31.0",
+    "aiohttp>=3.9.0",
+    "aiofiles>=23.0.0",
+    "python-dotenv>=1.0.0",
+
+    # Web scraping
+    "cloudscraper>=1.2.58",
+
+    # Data processing
+    "numpy>=1.24.0",
+    "pandas>=2.0.0",
+
+    # File processing
+    "pillow>=10.0.0",
+    "python-docx>=1.0.0",
+    "openpyxl>=3.1.0",
+    "pypdf>=4.0.0",
+    "chardet>=5.0.0",
 ]
 
 [project.optional-dependencies]
